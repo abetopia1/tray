@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useI18n } from '@/lib/i18n/context';
@@ -11,6 +11,14 @@ import type { Profile, MerchantProfile, Device, Transaction, KycReview, AuditLog
 type UserFilter = 'all' | 'merchants_only' | 'pending_merchants';
 
 export default function UsersPage() {
+  return (
+    <Suspense fallback={<div style={{ color: '#6b7280', padding: '2rem' }}>Loading...</div>}>
+      <UsersPageInner />
+    </Suspense>
+  );
+}
+
+function UsersPageInner() {
   const { t, locale } = useI18n();
   const { roles, can, userId: actorId } = useAdmin();
   const searchParams = useSearchParams();

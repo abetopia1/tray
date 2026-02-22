@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useI18n } from '@/lib/i18n/context';
@@ -10,6 +10,14 @@ const TX_TYPES: TxType[] = ['p2p', 'merchant_payment', 'refund', 'deposit', 'wit
 const TX_STATUSES: TxStatus[] = ['pending', 'completed', 'failed', 'reversed'];
 
 export default function TransactionsPage() {
+  return (
+    <Suspense fallback={<div style={{ color: '#6b7280', padding: '2rem' }}>Loading...</div>}>
+      <TransactionsPageInner />
+    </Suspense>
+  );
+}
+
+function TransactionsPageInner() {
   const { t, locale } = useI18n();
   const searchParams = useSearchParams();
 

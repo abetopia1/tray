@@ -27,13 +27,21 @@ export default function SupportPage() {
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
-    let query = supabase.from('support_tickets').select('*, profiles!support_tickets_user_id_fkey(full_name, phone_e164)').order('created_at', { ascending: sortOrder === 'oldest' }).limit(100);
+    let query = supabase.from('support_tickets').select('*').order('created_at', { ascending: sortOrder === 'oldest' }).limit(100);
     if (statusFilter) query = query.eq('status', statusFilter);
     const { data } = await query;
-    const mapped = ((data ?? []) as (SupportTicket & { profiles?: { full_name?: string; phone_e164?: string } })[]).map((t) => ({
+    const ticketList = (data as SupportTicket[]) ?? [];
+    // Fetch user profiles for tickets that have a user_id
+    const userIds = [...new Set(ticketList.map((t) => t.user_id).filter(Boolean))] as string[];
+    let profileMap: Record<string, { full_name?: string; phone_e164?: string }> = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name, phone_e164').in('id', userIds);
+      profileMap = Object.fromEntries((profiles ?? []).map((p: { id: string; full_name?: string; phone_e164?: string }) => [p.id, p]));
+    }
+    const mapped = ticketList.map((t) => ({
       ...t,
-      user_name: t.profiles?.full_name ?? undefined,
-      user_phone: t.profiles?.phone_e164 ?? undefined,
+      user_name: t.user_id ? profileMap[t.user_id]?.full_name ?? undefined : undefined,
+      user_phone: t.user_id ? profileMap[t.user_id]?.phone_e164 ?? undefined : undefined,
     }));
     setTickets(mapped);
     setLoading(false);
