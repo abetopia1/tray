@@ -61,13 +61,13 @@ Deno.serve(async (req: Request) => {
     todayStart.setHours(0, 0, 0, 0);
     const todayIso = todayStart.toISOString();
 
-    const [usersRes, merchantsRes, volumeRes, feesRes, failedRes] =
+    const [usersRes, merchantsRes, volumeRes, feesRes, failedRes, newUsersRes] =
       await Promise.all([
         adminClient
           .from("profiles")
           .select("id", { count: "exact", head: true }),
         adminClient
-          .from("merchants")
+          .from("merchant_profiles")
           .select("id", { count: "exact", head: true }),
         adminClient
           .from("transactions")
@@ -84,6 +84,10 @@ Deno.serve(async (req: Request) => {
           .select("id", { count: "exact", head: true })
           .gte("created_at", todayIso)
           .eq("status", "failed"),
+        adminClient
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .gte("created_at", todayIso),
       ]);
 
     const todayVolume = (volumeRes.data ?? []).reduce(
@@ -101,6 +105,7 @@ Deno.serve(async (req: Request) => {
       today_volume: todayVolume,
       today_fees: todayFees,
       failed_tx_count: failedRes.count ?? 0,
+      new_users_today: newUsersRes.count ?? 0,
     };
 
     // Write audit log for dashboard view

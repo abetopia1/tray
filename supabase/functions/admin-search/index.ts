@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
     // Search by phone_e164 (exact prefix), handle (ilike), or full_name (ilike)
     const { data: results, error: searchError } = await adminClient
       .from("profiles")
-      .select("id, phone_e164, handle, full_name")
+      .select("id, phone_e164, handle, full_name, kyc_status, wallet_status")
       .or(
         `phone_e164.ilike.%${sanitizedQuery}%,handle.ilike.%${sanitizedQuery}%,full_name.ilike.%${sanitizedQuery}%`
       )
