@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Tray Admin',
-  description: 'Tray Super Admin Dashboard',
+  title: 'Dizzly',
+  description: 'Dizzly Mobile Payments',
 };
 
 export default function RootLayout({

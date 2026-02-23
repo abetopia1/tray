@@ -11,7 +11,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/admin';
+  const redirect = searchParams.get('redirect') || '/wallet';
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -42,7 +42,7 @@ function LoginForm() {
       width: '100%',
       maxWidth: '400px',
     }}>
-      <h1 style={{ margin: '0 0 1.5rem', fontSize: '1.5rem' }}>Admin Login</h1>
+      <h1 style={{ margin: '0 0 1.5rem', fontSize: '1.5rem' }}>Sign In</h1>
       {error && (
         <div style={{ color: '#dc2626', marginBottom: '1rem', fontSize: '0.875rem' }}>
           {error}

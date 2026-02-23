@@ -1,14 +1,9 @@
-export type AdminRole = 'admin' | 'compliance' | 'finance' | 'support';
-
 export type TxType = 'p2p' | 'merchant_payment' | 'refund' | 'deposit' | 'withdrawal' | 'adjustment';
 export type TxStatus = 'pending' | 'completed' | 'failed' | 'reversed';
 export type KycStatus = 'pending' | 'approved' | 'rejected' | 'resubmission_required';
 export type MerchantStatus = 'pending' | 'active' | 'suspended' | 'rejected';
 export type WalletStatus = 'active' | 'frozen';
 export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
-export type BatchStatus = 'pending' | 'processing' | 'completed' | 'failed';
-export type ReconStatus = 'open' | 'investigating' | 'resolved';
-export type PayoutItemStatus = 'pending' | 'confirmed' | 'failed';
 
 export interface Profile {
   id: string;
@@ -19,14 +14,6 @@ export interface Profile {
   wallet_status: WalletStatus;
   created_at: string;
   updated_at: string;
-}
-
-export interface UserRole {
-  id: string;
-  user_id: string;
-  role: AdminRole;
-  granted_by: string | null;
-  created_at: string;
 }
 
 export interface Device {
@@ -90,44 +77,6 @@ export interface KycReview {
   updated_at: string;
 }
 
-export interface SettlementBatch {
-  id: string;
-  run_date: string;
-  cutoff_at: string;
-  gross_amount: number;
-  total_fees: number;
-  net_amount: number;
-  item_count: number;
-  currency: string;
-  status: BatchStatus;
-  export_url: string | null;
-  created_at: string;
-  settled_at: string | null;
-}
-
-export interface PayoutItem {
-  id: string;
-  batch_id: string;
-  merchant_id: string;
-  amount: number;
-  reference: string;
-  status: PayoutItemStatus;
-  created_at: string;
-}
-
-export interface ReconciliationException {
-  id: string;
-  batch_id: string | null;
-  transaction_id: string | null;
-  payout_item_id: string | null;
-  reason: string;
-  status: ReconStatus;
-  resolution_notes: string | null;
-  resolved_by: string | null;
-  created_at: string;
-  resolved_at: string | null;
-}
-
 export interface SupportTicket {
   id: string;
   user_id: string | null;
@@ -139,9 +88,6 @@ export interface SupportTicket {
   assigned_to: string | null;
   created_at: string;
   updated_at: string;
-  // Joined fields
-  user_name?: string;
-  user_phone?: string;
 }
 
 export interface SupportMessage {
@@ -153,54 +99,7 @@ export interface SupportMessage {
   created_at: string;
 }
 
-export interface AuditLog {
-  id: string;
-  actor_id: string | null;
-  action: string;
-  resource_type: string | null;
-  resource_id: string | null;
-  metadata: Record<string, unknown>;
-  ip_address: string | null;
-  created_at: string;
-}
-
 export interface AppConfig {
   key: string;
   value: string;
-}
-
-// Dashboard aggregates
-export interface AdminKpis {
-  total_users: number;
-  total_merchants: number;
-  today_volume: number;
-  today_fees: number;
-  failed_tx_count: number;
-  new_users_today: number;
-}
-
-export interface QueueCounts {
-  kyc_pending: number;
-  merchant_pending: number;
-  settlement_batches: number;
-  reconciliation_exceptions: number;
-  support_tickets: number;
-}
-
-export interface SearchResult {
-  id: string;
-  phone_e164: string | null;
-  handle: string | null;
-  full_name: string | null;
-  kyc_status: string | null;
-  wallet_status: string | null;
-}
-
-// User detail (joined view for admin/users page)
-export interface UserDetail extends Profile {
-  roles: AdminRole[];
-  merchant_profile: MerchantProfile | null;
-  devices: Device[];
-  recent_transactions: Transaction[];
-  kyc_review: KycReview | null;
 }
