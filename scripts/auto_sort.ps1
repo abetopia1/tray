@@ -54,36 +54,16 @@ try {
                 continue
             }
 
-            $group = Get-FranchiseGroup -FileName $file.Name -FilePath $file.FullName
-            $specialFolder = Get-SpecialFolder -FileName $file.Name
-            $fileDate = Get-DateFromFileName -FileName $file.Name -FileInfo $file
-            $description = Get-CleanDescription -FileName $file.Name
-            $ext = $file.Extension
-            $dateStr = $fileDate.ToString("yyyy-MM-dd")
-
-            if ($specialFolder) {
-                $destFolder = $specialFolder
-            } elseif ($group) {
-                $destFolder = $group
-            } else {
-                $destFolder = "_Unsorted"
-            }
-
-            if ($group -and -not $specialFolder) {
-                $baseName = "${dateStr}_${group}_${description}"
-            } else {
-                $baseName = "${dateStr}_${description}"
-            }
-
-            $destPath = Join-Path $RootPath $destFolder
-            $fullDest = Get-SafeDestination -DestDir $destPath -BaseName $baseName -Extension $ext
+            $info = Get-FileClassification -File $file -RootPath $RootPath
+            $destPath = Join-Path $RootPath $info.DestFolder
+            $fullDest = Get-SafeDestination -DestDir $destPath -BaseName $info.BaseName -Extension $info.Extension
             $newName = [System.IO.Path]::GetFileName($fullDest)
 
             Write-Host "─────────────────────────────────────" -ForegroundColor Yellow
             Write-Host "  NEW FILE DETECTED:" -ForegroundColor Yellow
             Write-Host "    Name:   $($file.Name)" -ForegroundColor White
-            Write-Host "    Group:  $(if ($group) { $group } else { '(unknown)' })" -ForegroundColor Cyan
-            Write-Host "    Move to: $destFolder\$newName" -ForegroundColor Green
+            Write-Host "    Group:  $(if ($info.Group) { $info.Group } else { '(unknown)' })" -ForegroundColor Cyan
+            Write-Host "    Move to: $($info.DestFolder)\$newName" -ForegroundColor Green
             Write-Host ""
 
             $confirm = Read-Host "  Move this file? [Y/n/s(kip)]"
@@ -96,7 +76,7 @@ try {
                     Move-Item -Path $file.FullName -Destination $fullDest
                     Write-Host "  [OK] Moved successfully.`n" -ForegroundColor Green
 
-                    $logLine = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | AUTO-SORT | $($file.Name) -> $destFolder\$newName"
+                    $logLine = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | AUTO-SORT | $($file.Name) -> $($info.DestFolder)\$newName"
                     $logPath = Join-Path $RootPath "_reorganization_log.txt"
                     Add-Content -Path $logPath -Value $logLine
                 } catch {

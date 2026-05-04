@@ -143,6 +143,68 @@ function Get-SpecialFolder {
     return $null
 }
 
+function Get-FileClassification {
+    param(
+        [System.IO.FileInfo]$File,
+        [string]$RootPath
+    )
+
+    $group = Get-FranchiseGroup -FileName $File.Name -FilePath $File.FullName
+    $specialFolder = Get-SpecialFolder -FileName $File.Name
+    $fileDate = Get-DateFromFileName -FileName $File.Name -FileInfo $File
+    $description = Get-CleanDescription -FileName $File.Name
+    $ext = $File.Extension
+    $dateStr = $fileDate.ToString("yyyy-MM-dd")
+
+    if ($specialFolder) {
+        $destFolder = $specialFolder
+    } elseif ($group) {
+        $destFolder = $group
+    } else {
+        $destFolder = "_Unsorted"
+    }
+
+    if ($group -and -not $specialFolder) {
+        $baseName = "${dateStr}_${group}_${description}"
+    } else {
+        $baseName = "${dateStr}_${description}"
+    }
+
+    return [PSCustomObject]@{
+        File          = $File
+        Group         = $group
+        SpecialFolder = $specialFolder
+        DateStr       = $dateStr
+        Description   = $description
+        DestFolder    = $destFolder
+        BaseName      = $baseName
+        Extension     = $ext
+    }
+}
+
+function Get-RolloutFiles {
+    param(
+        [string]$Path,
+        [switch]$Recursive
+    )
+
+    $skipDirs = $FolderStructure + @("_Unsorted")
+
+    if ($Recursive) {
+        Get-ChildItem -Path $Path -File -Recurse | Where-Object {
+            $f = $_
+            $f.Extension.ToLower() -in $DocumentExtensions -and
+            $f.Name -notlike "_*" -and
+            -not ($skipDirs | Where-Object { $f.DirectoryName -like "*\$_*" })
+        }
+    } else {
+        Get-ChildItem -Path $Path -File | Where-Object {
+            $_.Extension.ToLower() -in $DocumentExtensions -and
+            $_.Name -notlike "_*"
+        }
+    }
+}
+
 function Get-SafeDestination {
     param(
         [string]$DestDir,
@@ -186,5 +248,5 @@ function Wait-FileReady {
 
 # ── Exports ────────────────────────────────────────────────────────────────────
 
-Export-ModuleMember -Function Get-CleanDescription, Get-DateFromFileName, Get-FranchiseGroup, Get-SpecialFolder, Get-SafeDestination, Wait-FileReady
+Export-ModuleMember -Function Get-CleanDescription, Get-DateFromFileName, Get-FranchiseGroup, Get-SpecialFolder, Get-FileClassification, Get-RolloutFiles, Get-SafeDestination, Wait-FileReady
 Export-ModuleMember -Variable FranchiseGroups, TemplateKeywords, InternalKeywords, ArchiveKeywords, DocumentExtensions, FolderStructure

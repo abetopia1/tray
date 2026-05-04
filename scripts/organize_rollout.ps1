@@ -10,17 +10,22 @@
     Root folder containing the rollout files. Defaults to current directory.
 .PARAMETER Execute
     If set, actually moves and renames files. Without this flag, only a dry-run plan is shown.
+.PARAMETER Recursive
+    If set, scans subfolders for files too (not just the root level).
 .PARAMETER LogFile
     Path for the reorganization log. Defaults to _reorganization_log.txt in the target folder.
 .EXAMPLE
     .\organize_rollout.ps1 -Path "C:\Users\Abe\OneDrive\Fuzzys Toast Rollout"
 .EXAMPLE
     .\organize_rollout.ps1 -Path "C:\Users\Abe\OneDrive\Fuzzys Toast Rollout" -Execute
+.EXAMPLE
+    .\organize_rollout.ps1 -Path "C:\Users\Abe\OneDrive\Fuzzys Toast Rollout" -Recursive
 #>
 
 param(
     [string]$Path = (Get-Location).Path,
     [switch]$Execute,
+    [switch]$Recursive,
     [string]$LogFile = ""
 )
 
@@ -47,17 +52,15 @@ Write-Host "=============================================" -ForegroundColor Cyan
 Write-Host "  Fuzzy's Toast Rollout — File Organizer" -ForegroundColor Cyan
 Write-Host "=============================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Source:  $RootPath"
-Write-Host "  Mode:    $(if ($Execute) { 'EXECUTE' } else { 'DRY RUN' })"
+Write-Host "  Source:    $RootPath"
+Write-Host "  Mode:      $(if ($Execute) { 'EXECUTE' } else { 'DRY RUN' })"
+Write-Host "  Recursive: $(if ($Recursive) { 'YES' } else { 'NO' })"
 Write-Host ""
 
-$files = Get-ChildItem -Path $RootPath -File | Where-Object {
-    $_.Extension.ToLower() -in $DocumentExtensions -and
-    $_.Name -notlike "_*"
-}
+$files = Get-RolloutFiles -Path $RootPath -Recursive:$Recursive
 
 if ($files.Count -eq 0) {
-    Write-Host "No document files found in root of: $RootPath" -ForegroundColor Yellow
+    Write-Host "No document files found in: $RootPath" -ForegroundColor Yellow
     Write-Host "Supported extensions: $($DocumentExtensions -join ', ')"
     exit 0
 }
@@ -68,39 +71,19 @@ Write-Host "Found $($files.Count) document file(s) to organize.`n" -ForegroundCo
 $plan = @()
 
 foreach ($file in $files) {
-    $group = Get-FranchiseGroup -FileName $file.Name -FilePath $file.FullName
-    $specialFolder = Get-SpecialFolder -FileName $file.Name
-    $fileDate = Get-DateFromFileName -FileName $file.Name -FileInfo $file
-    $description = Get-CleanDescription -FileName $file.Name
-    $ext = $file.Extension
-
-    if ($specialFolder) {
-        $destFolder = $specialFolder
-    } elseif ($group) {
-        $destFolder = $group
-    } else {
-        $destFolder = "_Unsorted"
-    }
-
-    $dateStr = $fileDate.ToString("yyyy-MM-dd")
-    if ($group -and -not $specialFolder) {
-        $baseName = "${dateStr}_${group}_${description}"
-    } else {
-        $baseName = "${dateStr}_${description}"
-    }
-
-    $destPath = Join-Path $RootPath $destFolder
-    $fullDest = Get-SafeDestination -DestDir $destPath -BaseName $baseName -Extension $ext -ExistingPaths ($plan | ForEach-Object { $_.DestinationFull })
+    $info = Get-FileClassification -File $file -RootPath $RootPath
+    $destPath = Join-Path $RootPath $info.DestFolder
+    $fullDest = Get-SafeDestination -DestDir $destPath -BaseName $info.BaseName -Extension $info.Extension -ExistingPaths ($plan | ForEach-Object { $_.DestinationFull })
     $newName = [System.IO.Path]::GetFileName($fullDest)
 
     $plan += [PSCustomObject]@{
         OriginalName    = $file.Name
         OriginalPath    = $file.FullName
-        DestinationDir  = $destFolder
+        DestinationDir  = $info.DestFolder
         NewName         = $newName
         DestinationFull = $fullDest
-        DetectedGroup   = if ($group) { $group } else { "(none)" }
-        DetectedDate    = $dateStr
+        DetectedGroup   = if ($info.Group) { $info.Group } else { "(none)" }
+        DetectedDate    = $info.DateStr
     }
 }
 
@@ -153,6 +136,15 @@ if (-not $Execute) {
     exit 0
 }
 
+# Confirmation prompt before destructive action
+Write-Host "You are about to move and rename $($plan.Count) file(s)." -ForegroundColor Red
+$confirm = Read-Host "Type YES to proceed"
+if ($confirm -ne 'YES') {
+    Write-Host "Aborted. No files were moved." -ForegroundColor Yellow
+    exit 0
+}
+
+Write-Host ""
 Write-Host "EXECUTING file moves..." -ForegroundColor Magenta
 Write-Host ""
 

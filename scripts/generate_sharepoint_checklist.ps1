@@ -6,6 +6,8 @@
     Current File Name | Proposed New Name | Destination Folder
 .PARAMETER Path
     Root folder containing the rollout files.
+.PARAMETER Recursive
+    If set, scans subfolders for files too.
 .PARAMETER OutputFile
     Output CSV path. Defaults to _sharepoint_move_checklist.csv in the target folder.
 .EXAMPLE
@@ -14,6 +16,7 @@
 
 param(
     [string]$Path = (Get-Location).Path,
+    [switch]$Recursive,
     [string]$OutputFile = ""
 )
 
@@ -35,9 +38,7 @@ if ([string]::IsNullOrWhiteSpace($OutputFile)) {
     $OutputFile = Join-Path $RootPath "_sharepoint_move_checklist.csv"
 }
 
-$files = Get-ChildItem -Path $RootPath -File | Where-Object {
-    $_.Extension.ToLower() -in $DocumentExtensions -and $_.Name -notlike "_*"
-}
+$files = Get-RolloutFiles -Path $RootPath -Recursive:$Recursive
 
 if ($files.Count -eq 0) {
     Write-Host "No document files found." -ForegroundColor Yellow
@@ -47,33 +48,16 @@ if ($files.Count -eq 0) {
 $checklist = @()
 
 foreach ($file in $files) {
-    $group = Get-FranchiseGroup -FileName $file.Name -FilePath $file.FullName
-    $specialFolder = Get-SpecialFolder -FileName $file.Name
-    $fileDate = Get-DateFromFileName -FileName $file.Name -FileInfo $file
-    $description = Get-CleanDescription -FileName $file.Name
-    $ext = $file.Extension
-    $dateStr = $fileDate.ToString("yyyy-MM-dd")
+    $info = Get-FileClassification -File $file -RootPath $RootPath
 
-    if ($specialFolder) {
-        $destFolder = $specialFolder
-    } elseif ($group) {
-        $destFolder = $group
-    } else {
-        $destFolder = "_Unsorted"
-    }
-
-    if ($group -and -not $specialFolder) {
-        $newName = "${dateStr}_${group}_${description}${ext}"
-    } else {
-        $newName = "${dateStr}_${description}${ext}"
-    }
+    $newName = "$($info.BaseName)$($info.Extension)"
 
     $checklist += [PSCustomObject]@{
         "Current File Name"   = $file.Name
         "Proposed New Name"   = $newName
-        "Destination Folder"  = $destFolder
-        "Detected Group"      = if ($group) { $group } else { "" }
-        "File Date"           = $dateStr
+        "Destination Folder"  = $info.DestFolder
+        "Detected Group"      = if ($info.Group) { $info.Group } else { "" }
+        "File Date"           = $info.DateStr
         "Status"              = ""
     }
 }
