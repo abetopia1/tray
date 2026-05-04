@@ -4,8 +4,6 @@
 .DESCRIPTION
     Scans the rollout folder and produces a checklist with columns:
     Current File Name | Proposed New Name | Destination Folder
-
-    Save output as .csv and open in Excel, or import into SharePoint.
 .PARAMETER Path
     Root folder containing the rollout files.
 .PARAMETER OutputFile
@@ -22,69 +20,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Configuration ──────────────────────────────────────────────────────────────
-
-$FranchiseGroups = @{
-    "JRG"          = @("JRG", "Jobs Restaurant", "Jobs Rest")
-    "MarcRogers"   = @("Marc Rogers", "MarcRogers", "Marc_Rogers", "Rogers Group")
-    "BryantIrving" = @("Bryant Irving", "BryantIrving", "Bryant_Irving", "Bryant-Irving")
-    "Copperfield"  = @("Copperfield", "Copper Field", "Copperfield's")
-}
-
-$TemplateKeywords = @("template", "checklist", "blank", "form", "guide", "how-to", "howto", "instructions")
-$InternalKeywords = @("patrick", "executive", "internal", "deck", "leadership", "confidential", "update meeting")
-
-$DocumentExtensions = @(".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".pdf", ".txt", ".csv", ".msg", ".eml")
-
-# ── Helpers ────────────────────────────────────────────────────────────────────
-
-function Get-CleanDescription {
-    param([string]$FileName)
-    $name = [System.IO.Path]::GetFileNameWithoutExtension($FileName)
-    $name = $name -replace '^\d{4}[-_]\d{2}[-_]\d{2}[-_]?', ''
-    $name = $name -replace '^\d{2}[-_]\d{2}[-_]\d{4}[-_]?', ''
-    foreach ($group in $FranchiseGroups.Keys) {
-        foreach ($alias in $FranchiseGroups[$group]) {
-            $escaped = [regex]::Escape($alias)
-            $name = $name -replace "^${escaped}[-_\s]*", '' -replace "[-_\s]*${escaped}$", ''
-        }
-    }
-    $name = $name.Trim(' ', '-', '_') -replace '[\s\-]+', '_' -replace '_+', '_'
-    $name = $name.Trim('_')
-    if ([string]::IsNullOrWhiteSpace($name)) { $name = "Document" }
-    return $name
-}
-
-function Get-FranchiseGroup {
-    param([string]$FileName)
-    $lower = $FileName.ToLower()
-    foreach ($group in $FranchiseGroups.Keys) {
-        foreach ($alias in $FranchiseGroups[$group]) {
-            if ($lower -match [regex]::Escape($alias.ToLower())) { return $group }
-        }
-    }
-    return $null
-}
-
-function Get-SpecialFolder {
-    param([string]$FileName)
-    $lower = $FileName.ToLower()
-    foreach ($kw in $TemplateKeywords) { if ($lower -match [regex]::Escape($kw)) { return "_Templates" } }
-    foreach ($kw in $InternalKeywords) { if ($lower -match [regex]::Escape($kw)) { return "_Internal" } }
-    return $null
-}
-
-function Get-DateFromFileName {
-    param([string]$FileName, [System.IO.FileInfo]$FileInfo)
-    if ($FileName -match '(\d{4})[-_](\d{2})[-_](\d{2})') {
-        try { return [datetime]::ParseExact("$($Matches[1])-$($Matches[2])-$($Matches[3])", "yyyy-MM-dd", $null) } catch {}
-    }
-    return $FileInfo.LastWriteTime
-}
+Import-Module "$PSScriptRoot\rollout_helpers.psm1" -Force
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 $RootPath = (Resolve-Path $Path).Path
+
+if (-not (Test-Path $RootPath -PathType Container)) {
+    Write-Error "Path not found: $RootPath"
+    exit 1
+}
 
 if ([string]::IsNullOrWhiteSpace($OutputFile)) {
     $OutputFile = Join-Path $RootPath "_sharepoint_move_checklist.csv"
@@ -102,7 +47,7 @@ if ($files.Count -eq 0) {
 $checklist = @()
 
 foreach ($file in $files) {
-    $group = Get-FranchiseGroup -FileName $file.Name
+    $group = Get-FranchiseGroup -FileName $file.Name -FilePath $file.FullName
     $specialFolder = Get-SpecialFolder -FileName $file.Name
     $fileDate = Get-DateFromFileName -FileName $file.Name -FileInfo $file
     $description = Get-CleanDescription -FileName $file.Name
@@ -129,7 +74,20 @@ foreach ($file in $files) {
         "Destination Folder"  = $destFolder
         "Detected Group"      = if ($group) { $group } else { "" }
         "File Date"           = $dateStr
-        "Status"              = ""  # For manual tracking
+        "Status"              = ""
+    }
+}
+
+# Deduplicate proposed names
+$seen = @{}
+for ($i = 0; $i -lt $checklist.Count; $i++) {
+    $key = "$($checklist[$i].'Destination Folder')\$($checklist[$i].'Proposed New Name')"
+    if ($seen.ContainsKey($key)) {
+        $seen[$key]++
+        $oldName = $checklist[$i].'Proposed New Name'
+        $checklist[$i].'Proposed New Name' = $oldName -replace '(\.[^.]+)$', "_$($seen[$key])`$1"
+    } else {
+        $seen[$key] = 0
     }
 }
 

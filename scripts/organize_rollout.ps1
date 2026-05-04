@@ -5,9 +5,6 @@
     Scans a folder of rollout files (transcripts, PowerPoints, Word docs, Excel trackers),
     proposes a reorganized folder structure by franchise group, and optionally executes the plan.
 
-    Franchise Groups: JRG, MarcRogers, BryantIrving, Copperfield (+ auto-detected)
-    Catch-all folders: _Templates, _Internal, _Archive
-
     Naming convention: YYYY-MM-DD_GroupName_Description.ext
 .PARAMETER Path
     Root folder containing the rollout files. Defaults to current directory.
@@ -16,10 +13,8 @@
 .PARAMETER LogFile
     Path for the reorganization log. Defaults to _reorganization_log.txt in the target folder.
 .EXAMPLE
-    # Dry run — just show the plan
     .\organize_rollout.ps1 -Path "C:\Users\Abe\OneDrive\Fuzzys Toast Rollout"
-
-    # Execute the plan
+.EXAMPLE
     .\organize_rollout.ps1 -Path "C:\Users\Abe\OneDrive\Fuzzys Toast Rollout" -Execute
 #>
 
@@ -32,144 +27,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Configuration ──────────────────────────────────────────────────────────────
-
-$FranchiseGroups = @{
-    "JRG"          = @("JRG", "Jobs Restaurant", "Jobs Rest")
-    "MarcRogers"   = @("Marc Rogers", "MarcRogers", "Marc_Rogers", "Rogers Group")
-    "BryantIrving" = @("Bryant Irving", "BryantIrving", "Bryant_Irving", "Bryant-Irving")
-    "Copperfield"  = @("Copperfield", "Copper Field", "Copperfield's")
-}
-
-$TemplateKeywords = @("template", "checklist", "blank", "form", "guide", "how-to", "howto", "instructions")
-$InternalKeywords = @("patrick", "executive", "internal", "deck", "leadership", "confidential", "update meeting")
-$ArchiveKeywords  = @("old", "backup", "copy", "v1", "v2", "draft", "deprecated", "archive")
-
-$DocumentExtensions = @(".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".pdf", ".txt", ".csv", ".msg", ".eml")
-
-$FolderStructure = @(
-    "_Templates",
-    "_Internal",
-    "_Archive",
-    "JRG",
-    "MarcRogers",
-    "BryantIrving",
-    "Copperfield"
-)
-
-# ── Helper Functions ───────────────────────────────────────────────────────────
-
-function Get-CleanDescription {
-    param([string]$FileName)
-
-    $name = [System.IO.Path]::GetFileNameWithoutExtension($FileName)
-
-    # Remove existing date patterns
-    $name = $name -replace '^\d{4}[-_]\d{2}[-_]\d{2}[-_]?', ''
-    $name = $name -replace '^\d{2}[-_]\d{2}[-_]\d{4}[-_]?', ''
-    $name = $name -replace '^\d{2}[-_]\d{2}[-_]\d{2}[-_]?', ''
-
-    # Remove group name prefixes (will be re-added in new format)
-    foreach ($group in $FranchiseGroups.Keys) {
-        foreach ($alias in $FranchiseGroups[$group]) {
-            $escaped = [regex]::Escape($alias)
-            $name = $name -replace "^${escaped}[-_\s]*", '' -replace "[-_\s]*${escaped}$", ''
-        }
-    }
-
-    # Clean up separators: replace spaces/dashes/underscores with underscores, trim
-    $name = $name.Trim(' ', '-', '_')
-    $name = $name -replace '[\s\-]+', '_'
-    $name = $name -replace '_+', '_'
-    $name = $name.Trim('_')
-
-    if ([string]::IsNullOrWhiteSpace($name)) {
-        $name = "Document"
-    }
-
-    return $name
-}
-
-function Get-DateFromFileName {
-    param([string]$FileName, [System.IO.FileInfo]$FileInfo)
-
-    # Try YYYY-MM-DD
-    if ($FileName -match '(\d{4})[-_](\d{2})[-_](\d{2})') {
-        try {
-            return [datetime]::ParseExact("$($Matches[1])-$($Matches[2])-$($Matches[3])", "yyyy-MM-dd", $null)
-        } catch {}
-    }
-
-    # Try MM-DD-YYYY
-    if ($FileName -match '(\d{2})[-_](\d{2})[-_](\d{4})') {
-        try {
-            return [datetime]::ParseExact("$($Matches[1])-$($Matches[2])-$($Matches[3])", "MM-dd-yyyy", $null)
-        } catch {}
-    }
-
-    # Fall back to file last modified date
-    return $FileInfo.LastWriteTime
-}
-
-function Get-FranchiseGroup {
-    param([string]$FileName, [string]$FilePath)
-
-    $fileNameLower = $FileName.ToLower()
-
-    # Check filename first
-    foreach ($group in $FranchiseGroups.Keys) {
-        foreach ($alias in $FranchiseGroups[$group]) {
-            if ($fileNameLower -match [regex]::Escape($alias.ToLower())) {
-                return $group
-            }
-        }
-    }
-
-    # If ambiguous, try reading first lines of text-based files
-    $ext = [System.IO.Path]::GetExtension($FilePath).ToLower()
-    if ($ext -in @(".txt", ".csv")) {
-        try {
-            $firstLines = Get-Content -Path $FilePath -TotalCount 30 -ErrorAction SilentlyContinue
-            $content = $firstLines -join " "
-            $contentLower = $content.ToLower()
-
-            foreach ($group in $FranchiseGroups.Keys) {
-                foreach ($alias in $FranchiseGroups[$group]) {
-                    if ($contentLower -match [regex]::Escape($alias.ToLower())) {
-                        return $group
-                    }
-                }
-            }
-        } catch {}
-    }
-
-    return $null
-}
-
-function Get-SpecialFolder {
-    param([string]$FileName)
-
-    $fileNameLower = $FileName.ToLower()
-
-    foreach ($kw in $TemplateKeywords) {
-        if ($fileNameLower -match [regex]::Escape($kw)) { return "_Templates" }
-    }
-
-    foreach ($kw in $InternalKeywords) {
-        if ($fileNameLower -match [regex]::Escape($kw)) { return "_Internal" }
-    }
-
-    # Check for version patterns suggesting archive
-    if ($fileNameLower -match '\((\d+)\)' -or $fileNameLower -match '_v\d+') {
-        return "_Archive"
-    }
-
-    foreach ($kw in $ArchiveKeywords) {
-        if ($fileNameLower -match [regex]::Escape($kw)) { return "_Archive" }
-    }
-
-    return $null
-}
+Import-Module "$PSScriptRoot\rollout_helpers.psm1" -Force
 
 # ── Main Logic ─────────────────────────────────────────────────────────────────
 
@@ -193,10 +51,9 @@ Write-Host "  Source:  $RootPath"
 Write-Host "  Mode:    $(if ($Execute) { 'EXECUTE' } else { 'DRY RUN' })"
 Write-Host ""
 
-# Collect files from root (non-recursive to avoid reorganizing already-sorted subfolders)
 $files = Get-ChildItem -Path $RootPath -File | Where-Object {
     $_.Extension.ToLower() -in $DocumentExtensions -and
-    $_.Name -notlike "_*"  # Skip log/config files
+    $_.Name -notlike "_*"
 }
 
 if ($files.Count -eq 0) {
@@ -209,7 +66,6 @@ Write-Host "Found $($files.Count) document file(s) to organize.`n" -ForegroundCo
 
 # Build the plan
 $plan = @()
-$detectedGroups = @{}
 
 foreach ($file in $files) {
     $group = Get-FranchiseGroup -FileName $file.Name -FilePath $file.FullName
@@ -218,34 +74,24 @@ foreach ($file in $files) {
     $description = Get-CleanDescription -FileName $file.Name
     $ext = $file.Extension
 
-    # Determine destination folder
     if ($specialFolder) {
         $destFolder = $specialFolder
     } elseif ($group) {
         $destFolder = $group
-        $detectedGroups[$group] = $true
     } else {
-        # Unknown group — place in a catch-all
         $destFolder = "_Unsorted"
     }
 
-    # Build new filename
     $dateStr = $fileDate.ToString("yyyy-MM-dd")
     if ($group -and -not $specialFolder) {
-        $newName = "${dateStr}_${group}_${description}${ext}"
+        $baseName = "${dateStr}_${group}_${description}"
     } else {
-        $newName = "${dateStr}_${description}${ext}"
+        $baseName = "${dateStr}_${description}"
     }
 
-    # Avoid duplicate names
     $destPath = Join-Path $RootPath $destFolder
-    $fullDest = Join-Path $destPath $newName
-    $counter = 1
-    while (($plan | Where-Object { $_.DestinationFull -eq $fullDest }) -or (Test-Path $fullDest)) {
-        $newName = "${dateStr}_${description}_$counter${ext}"
-        $fullDest = Join-Path $destPath $newName
-        $counter++
-    }
+    $fullDest = Get-SafeDestination -DestDir $destPath -BaseName $baseName -Extension $ext -ExistingPaths ($plan | ForEach-Object { $_.DestinationFull })
+    $newName = [System.IO.Path]::GetFileName($fullDest)
 
     $plan += [PSCustomObject]@{
         OriginalName    = $file.Name
@@ -259,8 +105,9 @@ foreach ($file in $files) {
 }
 
 # Add _Unsorted to folder list if needed
+$activeFolders = @($FolderStructure)
 if ($plan | Where-Object { $_.DestinationDir -eq "_Unsorted" }) {
-    $FolderStructure += "_Unsorted"
+    $activeFolders += "_Unsorted"
 }
 
 # ── Display Plan ───────────────────────────────────────────────────────────────
@@ -268,7 +115,7 @@ if ($plan | Where-Object { $_.DestinationDir -eq "_Unsorted" }) {
 Write-Host "─── PROPOSED FOLDER STRUCTURE ───" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  $RootPath\" -ForegroundColor White
-foreach ($folder in ($FolderStructure | Sort-Object)) {
+foreach ($folder in ($activeFolders | Sort-Object)) {
     $count = ($plan | Where-Object { $_.DestinationDir -eq $folder }).Count
     if ($count -gt 0) {
         Write-Host "  ├── $folder\  ($count files)" -ForegroundColor Green
@@ -315,8 +162,7 @@ $logEntries += "Executed: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 $logEntries += "Source: $RootPath"
 $logEntries += "=" * 60
 
-# Create folder structure
-foreach ($folder in ($FolderStructure | Sort-Object)) {
+foreach ($folder in ($activeFolders | Sort-Object)) {
     $folderPath = Join-Path $RootPath $folder
     if (-not (Test-Path $folderPath)) {
         New-Item -ItemType Directory -Path $folderPath -Force | Out-Null
@@ -340,7 +186,7 @@ foreach ($item in $plan | Sort-Object DestinationDir, NewName) {
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null
         }
 
-        Move-Item -Path $item.OriginalPath -Destination $item.DestinationFull -Force
+        Move-Item -Path $item.OriginalPath -Destination $item.DestinationFull
         $moved++
 
         $msg = "MOVED: $($item.OriginalName) -> $($item.DestinationDir)\$($item.NewName)"
