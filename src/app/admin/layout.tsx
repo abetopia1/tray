@@ -12,6 +12,7 @@ const NAV_META: Record<string, { labelEn: string; labelAr: string }> = {
   '/admin/kyc':          { labelEn: 'KYC',            labelAr: 'التحقق من الهوية' },
   '/admin/settlement':   { labelEn: 'Settlement',     labelAr: 'التسوية' },
   '/admin/support':      { labelEn: 'Support',        labelAr: 'الدعم' },
+  '/admin/jobs':         { labelEn: 'Jobs',           labelAr: 'المهام' },
 };
 
 export default async function AdminLayout({

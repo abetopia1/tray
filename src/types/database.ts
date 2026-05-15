@@ -9,6 +9,7 @@ export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type BatchStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type ReconStatus = 'open' | 'investigating' | 'resolved';
 export type PayoutItemStatus = 'pending' | 'confirmed' | 'failed';
+export type HermesJobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 export interface Profile {
   id: string;
@@ -167,6 +168,24 @@ export interface AuditLog {
 export interface AppConfig {
   key: string;
   value: string;
+}
+
+export interface HermesJob {
+  id: string;
+  type: string;
+  payload: Record<string, unknown>;
+  status: HermesJobStatus;
+  priority: number;
+  attempts: number;
+  max_attempts: number;
+  last_error: string | null;
+  run_at: string;
+  claimed_at: string | null;
+  claimed_by: string | null;
+  completed_at: string | null;
+  enqueued_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Dashboard aggregates

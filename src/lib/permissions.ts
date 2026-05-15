@@ -11,6 +11,7 @@ const ROUTE_ACCESS: Record<string, AdminRole[]> = {
   '/admin/kyc':          ['admin', 'compliance'],
   '/admin/settlement':   ['admin', 'finance'],
   '/admin/support':      ['admin', 'support'],
+  '/admin/jobs':         ['admin'],
 };
 
 /**
@@ -40,6 +41,8 @@ const ACTION_PERMISSIONS: Record<string, AdminRole[]> = {
   'danger.balance_adjust':    ['admin'],
   'danger.force_logout':      ['admin'],
   'danger.view_audit':        ['admin'],
+  'jobs.enqueue':             ['admin'],
+  'jobs.retry':               ['admin'],
 };
 
 export function canAccessRoute(pathname: string, roles: AdminRole[]): boolean {
