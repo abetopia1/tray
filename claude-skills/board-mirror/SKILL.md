@@ -1,6 +1,6 @@
 ---
 name: board-mirror
-description: Harvest real sibling stories from the Azure DevOps board before drafting or converting any RMS story, to lock format, phrasing, and values from the most-advanced populated sibling. Use whenever board access exists and a story is about to be drafted, mirrored, reformatted, or compared against "how the team writes them." Read-only: never create, edit, move, or delete work items during a harvest.
+description: 'Harvest real sibling stories from the Azure DevOps board before drafting or converting any RMS story, to lock format, phrasing, and values from the most-advanced populated sibling. Use whenever board access exists and a story is about to be drafted, mirrored, reformatted, or compared against "how the team writes them." Read-only: never create, edit, move, or delete work items during a harvest.'
 ---
 
 # Board Mirror (sibling harvest)
