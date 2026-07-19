@@ -21,11 +21,12 @@ Skills → Upload skill**. Account-level skills sync to every surface signed in
 to your account — claude.ai chat, the desktop app, and remote Claude Code
 sessions — the same way other custom skills already do.
 
-Ready-to-upload packages live in `dist/` — each `<name>.skill` file is a zip
-archive containing `<name>/SKILL.md`, the format the uploader expects (built
-and validated with the official skill-creator packager). Upload each of the
-five files; the platform accepts exactly one skill per upload, so a combined
-multi-skill archive is not possible.
+Ready-to-upload packages live in `dist/` — each `<name>.zip` contains
+`<name>/SKILL.md` plus any supporting files, the format the uploader expects
+(built and validated with the official skill-creator packager; the uploader's
+file picker only accepts the `.zip` extension). Upload each file separately;
+the platform accepts exactly one skill per upload, so a combined multi-skill
+archive is not possible.
 
 ## Install on one machine (Claude Code CLI)
 
