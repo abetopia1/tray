@@ -1,0 +1,45 @@
+# Claude Skills
+
+User-level Claude skills kept here so they can be installed on any machine or
+uploaded to claude.ai: the five RMS user-story skills plus third-party skills
+adopted from GitHub. This folder is deliberately **not** `.claude/skills/` —
+these are meant to be installed at the user level, not scoped to this project.
+
+| Skill | Purpose |
+| --- | --- |
+| `rms-story-authoring` | Drafting procedure for RMS user stories (Format A/B skeletons, field specs, docx pipeline) |
+| `story-readiness-check` | Pre-delivery review gate before presenting or delivering a story |
+| `board-mirror` | Read-only harvest of sibling stories from the Azure DevOps board before drafting |
+| `meeting-conduct` | Conduct rules for RMS ceremonies and the transcript-to-recap procedure |
+| `ado-board-setup` | One-time setup/repair of Azure DevOps board access (org `phlacounty`) |
+| `prompt-polish` | Rewrite rough prompts into polished, model-specific prompts (from [mfarzanansari/prompt-polish](https://github.com/mfarzanansari/prompt-polish) v1.0.2, MIT) |
+
+## Make them available in every Claude instance (recommended)
+
+Upload each skill to your claude.ai account: **Settings → Capabilities →
+Skills → Upload skill**. Account-level skills sync to every surface signed in
+to your account — claude.ai chat, the desktop app, and remote Claude Code
+sessions — the same way other custom skills already do.
+
+Ready-to-upload packages live in `dist/` — each `<name>.zip` contains
+`<name>/SKILL.md` plus any supporting files, the format the uploader expects
+(built and validated with the official skill-creator packager; the uploader's
+file picker only accepts the `.zip` extension). Upload each file separately;
+the platform accepts exactly one skill per upload, so a combined multi-skill
+archive is not possible.
+
+## Install on one machine (Claude Code CLI)
+
+```bash
+bash claude-skills/install.sh
+```
+
+This copies each skill to `~/.claude/skills/<name>/SKILL.md`, which Claude
+Code loads for every project on that machine. Start a new session afterwards
+to pick them up.
+
+## Notes
+
+- Directory names must match the `name:` field in each `SKILL.md` frontmatter.
+- The skills reference an RMS project `CLAUDE.md` (nomenclature, ledger,
+  format-selection rule); they are fully effective only alongside that file.
