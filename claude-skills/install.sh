@@ -16,13 +16,15 @@ SKILLS=(
   board-mirror
   meeting-conduct
   ado-board-setup
+  prompt-polish
 )
 
 mkdir -p "$DEST_DIR"
 for skill in "${SKILLS[@]}"; do
+  rm -rf "$DEST_DIR/$skill"
   mkdir -p "$DEST_DIR/$skill"
-  cp "$SRC_DIR/$skill/SKILL.md" "$DEST_DIR/$skill/SKILL.md"
-  echo "installed $skill -> $DEST_DIR/$skill/SKILL.md"
+  cp -r "$SRC_DIR/$skill/." "$DEST_DIR/$skill/"
+  echo "installed $skill -> $DEST_DIR/$skill/"
 done
 
 echo

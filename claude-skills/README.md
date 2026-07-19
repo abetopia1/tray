@@ -1,9 +1,9 @@
-# RMS Claude Skills
+# Claude Skills
 
-Five skills for RMS user-story work, kept here so they can be installed on any
-machine or uploaded to claude.ai. This folder is deliberately **not**
-`.claude/skills/` — these are meant to be installed at the user level, not
-scoped to this project.
+User-level Claude skills kept here so they can be installed on any machine or
+uploaded to claude.ai: the five RMS user-story skills plus third-party skills
+adopted from GitHub. This folder is deliberately **not** `.claude/skills/` —
+these are meant to be installed at the user level, not scoped to this project.
 
 | Skill | Purpose |
 | --- | --- |
@@ -12,6 +12,7 @@ scoped to this project.
 | `board-mirror` | Read-only harvest of sibling stories from the Azure DevOps board before drafting |
 | `meeting-conduct` | Conduct rules for RMS ceremonies and the transcript-to-recap procedure |
 | `ado-board-setup` | One-time setup/repair of Azure DevOps board access (org `phlacounty`) |
+| `prompt-polish` | Rewrite rough prompts into polished, model-specific prompts (from [mfarzanansari/prompt-polish](https://github.com/mfarzanansari/prompt-polish) v1.0.2, MIT) |
 
 ## Make them available in every Claude instance (recommended)
 
