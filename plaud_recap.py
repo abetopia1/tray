@@ -54,6 +54,7 @@ import email.utils
 import html
 import io
 import json
+import mimetypes
 import os
 import re
 import shutil
@@ -166,7 +167,14 @@ def html_to_text(markup):
 # ----------------------------------------------------------------------------- attachment decoders
 
 def decode_text_bytes(raw, charset=None):
-    for enc in filter(None, [charset, "utf-8", "utf-16", "latin-1"]):
+    # utf-16 only with a BOM: BOM-less utf-16-le "succeeds" on most even-length
+    # bytes and turns cp1252 transcripts into CJK mojibake. cp1252 before
+    # latin-1 for smart quotes; latin-1 last because it never fails.
+    encodings = [charset, "utf-8"]
+    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        encodings.append("utf-16")
+    encodings += ["cp1252", "latin-1"]
+    for enc in filter(None, encodings):
         try:
             return raw.decode(enc)
         except (UnicodeDecodeError, LookupError):
@@ -264,7 +272,8 @@ def extract_body(msg):
     more content."""
     plain, htm = None, None
     for part in msg.walk():
-        if part.is_multipart() or part.get_filename():
+        if (part.is_multipart() or part.get_filename()
+                or part.get_content_disposition() == "attachment"):
             continue
         ctype = part.get_content_type()
         if ctype not in ("text/plain", "text/html"):
@@ -291,8 +300,10 @@ def extract_body(msg):
 
 def safe_name(name, fallback="attachment"):
     name = os.path.basename(name or "").strip() or fallback
-    name = re.sub(r"[^\w.\- ]+", "_", name)
-    return name[:120] or fallback
+    name = re.sub(r"[^\w.\- ]+", "_", name)[:120]
+    if not name.strip(". "):   # '.', '..', 'a/..' -> would escape/hit the dir itself
+        name = fallback
+    return name
 
 
 def slugify(subject, maxlen=48):
@@ -303,17 +314,33 @@ def slugify(subject, maxlen=48):
     return s[:maxlen].strip("-") or "meeting"
 
 
+# Preferred extensions for unnamed attachments; the extension drives decoding
+# and transcript picking, so a bare "attachment" name would lose the content.
+EXT_FOR_TYPE = {
+    "text/plain": ".txt", "text/markdown": ".md", "text/vtt": ".vtt",
+    "application/x-subrip": ".srt", "application/pdf": ".pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+}
+
+
 def extract_attachments(msg, att_dir):
-    """Save every attachment; decode what we can. Returns list of dicts."""
+    """Save every attachment (named, or marked attachment without a filename);
+    decode what we can. One bad attachment never kills the meeting."""
     out = []
     seen = set()
     for part in msg.walk():
+        if part.is_multipart():
+            continue
         fname = part.get_filename()
-        if not fname:
+        if not fname and part.get_content_disposition() != "attachment":
             continue
         raw = part.get_payload(decode=True)
         if raw is None:
             continue
+        ctype = part.get_content_type()
+        if not fname:
+            fname = "attachment" + (EXT_FOR_TYPE.get(ctype)
+                                    or mimetypes.guess_extension(ctype) or ".bin")
         name = safe_name(fname)
         base, ext = os.path.splitext(name)
         n = 1
@@ -321,27 +348,33 @@ def extract_attachments(msg, att_dir):
             n += 1
             name = f"{base}_{n}{ext}"
         seen.add(name)
-        os.makedirs(att_dir, exist_ok=True)
-        path = os.path.join(att_dir, name)
-        with open(path, "wb") as fh:
-            fh.write(raw)
 
         ext = ext.lower()
         rec = {"name": name, "size": len(raw), "ext": ext, "text": None, "kind": "other"}
-        if ext in TEXT_EXTS:
-            rec["kind"] = "text"
-            rec["text"] = decode_text_bytes(raw, part.get_content_charset())
-        elif ext in SUBTITLE_EXTS:
-            rec["kind"] = "subtitle"
-            rec["text"] = clean_subtitles(decode_text_bytes(raw, part.get_content_charset()))
-        elif ext == ".docx":
-            rec["kind"] = "docx"
-            rec["text"] = docx_to_text(raw)
-        elif ext == ".pdf":
-            rec["kind"] = "pdf"
-            rec["text"] = pdf_to_text(path)
-        elif ext in AUDIO_EXTS:
-            rec["kind"] = "audio"
+        try:
+            os.makedirs(att_dir, exist_ok=True)
+            path = os.path.join(att_dir, name)
+            with open(path, "wb") as fh:
+                fh.write(raw)
+            if ext in TEXT_EXTS:
+                rec["kind"] = "text"
+                rec["text"] = decode_text_bytes(raw, part.get_content_charset())
+            elif ext in SUBTITLE_EXTS:
+                rec["kind"] = "subtitle"
+                rec["text"] = clean_subtitles(decode_text_bytes(raw, part.get_content_charset()))
+            elif ext == ".docx":
+                rec["kind"] = "docx"
+                rec["text"] = docx_to_text(raw)
+            elif ext == ".pdf":
+                rec["kind"] = "pdf"
+                rec["text"] = pdf_to_text(path)
+            elif ext in AUDIO_EXTS:
+                rec["kind"] = "audio"
+        except Exception as e:
+            print(f"[!] Attachment {name!r} failed to save/decode ({e}); "
+                  f"skipping it, not the meeting.", file=sys.stderr)
+            rec["kind"] = "error"
+            rec["text"] = None
         out.append(rec)
     return out
 
@@ -455,13 +488,18 @@ def main():
         target = datetime.now(tz).date()
     patterns = args.match or DEFAULT_MATCH
 
+    # Zero emails is a normal outcome ("no recordings today" is a valid recap):
+    # still produce the empty bundle + skeleton and exit 0.
     if not os.path.isdir(args.source):
-        sys.exit(f"[!] --source folder not found: {args.source}")
-
-    eml_paths = list(iter_eml_files(args.source))
-    if not eml_paths:
-        sys.exit(f"[!] No .eml files under {args.source}. Save each Plaud email as raw .eml "
-                 f"(Gmail: 'Show original' -> Download; most clients: drag the message out).")
+        print(f"[!] --source folder not found: {args.source}; treating as zero emails.",
+              file=sys.stderr)
+        eml_paths = []
+    else:
+        eml_paths = list(iter_eml_files(args.source))
+        if not eml_paths:
+            print(f"[!] No .eml files under {args.source}. Save each Plaud email as raw .eml "
+                  f"(Gmail: 'Show original' -> Download; most clients: drag the message out). "
+                  f"Proceeding with an empty bundle.", file=sys.stderr)
 
     accepted, rejected = [], []
     for path in eml_paths:
@@ -488,26 +526,36 @@ def main():
     accepted.sort(key=lambda t: t[0])
     date_str = target.isoformat() if not args.any_date else "all-dates"
     day_dir = os.path.join(args.out, date_str)
+    # A previous bundle for this day would leave stale meeting folders behind a
+    # re-run and make meetings.json disagree with disk - rebuild from scratch.
+    # Only remove a dir that is recognizably ours (has meetings.json).
+    if os.path.isdir(day_dir) and os.path.exists(os.path.join(day_dir, "meetings.json")):
+        shutil.rmtree(day_dir)
     os.makedirs(day_dir, exist_ok=True)
 
     meetings = []
     for i, (when, path, msg, subject, sender) in enumerate(accepted, 1):
-        slug = slugify(subject)
-        mdir = os.path.join(day_dir, f"{i:02d}-{slug}")
-        os.makedirs(mdir, exist_ok=True)
+        try:
+            slug = slugify(subject)
+            mdir = os.path.join(day_dir, f"{i:02d}-{slug}")
+            os.makedirs(mdir, exist_ok=True)
 
-        body, body_type = extract_body(msg)
-        atts = extract_attachments(msg, os.path.join(mdir, "attachments"))
-        transcript = pick_transcript(atts)
+            body, body_type = extract_body(msg)
+            atts = extract_attachments(msg, os.path.join(mdir, "attachments"))
+            transcript = pick_transcript(atts)
 
-        with open(os.path.join(mdir, "email_summary.md"), "w", encoding="utf-8") as fh:
-            fh.write(f"# {subject}\n\n_Plaud processed notes, from the email body "
-                     f"({body_type or 'no body found'})._\n\n{body}\n")
-        tpath = None
-        if transcript:
-            tpath = os.path.join(mdir, "transcript.txt")
-            with open(tpath, "w", encoding="utf-8") as fh:
-                fh.write(transcript["text"])
+            with open(os.path.join(mdir, "email_summary.md"), "w", encoding="utf-8") as fh:
+                fh.write(f"# {subject}\n\n_Plaud processed notes, from the email body "
+                         f"({body_type or 'no body found'})._\n\n{body}\n")
+            tpath = None
+            if transcript:
+                tpath = os.path.join(mdir, "transcript.txt")
+                with open(tpath, "w", encoding="utf-8") as fh:
+                    fh.write(transcript["text"])
+        except Exception as e:
+            print(f"[!] Failed to process {path}: {e}; skipping this message, not the day.",
+                  file=sys.stderr)
+            continue
 
         title = re.sub(r"^(\s*(re|fw|fwd)\s*:\s*)+", "", subject, flags=re.I)
         title = re.sub(r"\[[^\]]*\]", "", title)
