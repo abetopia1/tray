@@ -31,3 +31,7 @@ next-env.d.ts
 __pycache__/
 *.pyc
 paste_out/
+
+# plaud daily recap working dirs (fetched emails + generated bundles)
+plaud_inbox/
+plaud_out/
