@@ -6,11 +6,12 @@
 #   sh apply.sh --tier fast --dry-run  # show the config diff, change nothing
 #
 # Options: --dry-run  --no-restart  --skip-skill  --skip-soul
-#          --oauth    (claude tier: you logged in with 'hermes model' > Anthropic OAuth, so no API key prompt)
+#          --oauth    (claude tier: you logged in with 'hermes model' > Anthropic OAuth; that
+#                      route needs Claude Max with extra-usage credits, not Pro)
 # Env:     HERMES_HOME (default ~/.hermes)   HERMES_PY (python with PyYAML)
 #
 # POSIX sh on purpose: macOS /bin/bash is 3.2 and /bin/sh is fine for this.
-# Every change is backed up first; rollback.sh restores the last backup.
+# Every change is backed up first; rollback.sh restores the pre-fix backup.
 
 set -eu
 
@@ -48,7 +49,7 @@ ENV_FILE="$HERMES_HOME/.env"
 SOUL="$HERMES_HOME/SOUL.md"
 SKILL_DEST="$HERMES_HOME/skills/fuzzys-cos-brief"
 BACKUP_DIR="$HERMES_HOME/backups/efficiency-fix"
-STAMP="$(date +%Y%m%d-%H%M%S)"
+STAMP="$(date +%Y%m%d-%H%M%S)-$$"   # the pid keeps two runs in one second from sharing a backup
 
 command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Open a new Terminal or run: export PATH=\"\$HOME/.local/bin:\$PATH\""
 [ -d "$HERMES_HOME" ] || die "$HERMES_HOME does not exist. Run 'hermes setup' first."
@@ -57,6 +58,8 @@ command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Open a new Term
 # A Python that can import PyYAML. The Hermes venv always has one.
 find_python() {
   for cand in "${HERMES_PY:-}" \
+              "$HERMES_HOME"/installs/*/environments/*/bin/python3 \
+              "$HERMES_HOME"/installs/*/environments/*/bin/python \
               "$HERMES_HOME/hermes-agent/venv/bin/python3" \
               "$HERMES_HOME/hermes-agent/.venv/bin/python3" \
               "$HERMES_HOME/venv/bin/python3" \
@@ -91,8 +94,10 @@ if [ "$DRY_RUN" -eq 0 ]; then
   mkdir -p "$BACKUP_DIR"
   cp "$CONFIG" "$BACKUP_DIR/config.yaml.$STAMP"
   [ -f "$SOUL" ] && cp "$SOUL" "$BACKUP_DIR/SOUL.md.$STAMP"
-  printf '%s\n' "$STAMP" > "$BACKUP_DIR/LAST"
-  echo "== backup written: $BACKUP_DIR/*.$STAMP"
+  [ -f "$ENV_FILE" ] && cp "$ENV_FILE" "$BACKUP_DIR/env.$STAMP"
+  # LAST names the first, pre-fix backup. A second apply keeps it.
+  [ -f "$BACKUP_DIR/LAST" ] || printf '%s\n' "$STAMP" > "$BACKUP_DIR/LAST"
+  echo "== backup written: $BACKUP_DIR/*.$STAMP (rollback target: $(cat "$BACKUP_DIR/LAST"))"
 fi
 
 # 2. API key for the claude tier (never echoed, never logged)
@@ -112,8 +117,11 @@ if [ "$TIER" = "claude" ]; then
       stty echo 2>/dev/null || true
       echo
     fi
-    [ -n "$key" ] || die "no API key given. Alternative: run 'hermes model' and pick Anthropic OAuth (needs Claude Max)."
+    [ -n "$key" ] || die "no API key given. Alternative: 'hermes model' > Anthropic OAuth (Claude Max with extra-usage credits), then re-run with --oauth."
     umask 077
+    if [ -s "$ENV_FILE" ] && [ -n "$(tail -c 1 "$ENV_FILE")" ]; then
+      printf '\n' >> "$ENV_FILE"
+    fi
     printf 'ANTHROPIC_API_KEY=%s\n' "$key" >> "$ENV_FILE"
     chmod 600 "$ENV_FILE"
     unset key
@@ -138,7 +146,11 @@ esac
 
 # 4. Operating rules appended to SOUL.md (once; guarded by a marker)
 if [ "$DO_SOUL" -eq 1 ]; then
-  if grep -q 'hermes-efficiency-rules v1' "$SOUL" 2>/dev/null; then
+  if [ ! -f "$SOUL" ]; then
+    # Hermes seeds SOUL.md on first start. Creating it here would make these
+    # rules the agent's whole identity, so wait for the seeded file instead.
+    echo "== $SOUL not found; rules skipped. Start Hermes once, then re-run apply.sh."
+  elif grep -q 'hermes-efficiency-rules v1' "$SOUL" 2>/dev/null; then
     echo "== SOUL.md already carries the efficiency rules"
   elif [ "$DRY_RUN" -eq 1 ]; then
     echo "== would append efficiency rules to $SOUL"
@@ -189,7 +201,8 @@ Done. Verify in this order:
   2. hermes config get model.default    # expect $( [ "$TIER" = claude ] && echo claude-opus-5-5 || echo MiniMax-M2.7-highspeed )
   3. From iMessage, send:  /fuzzys-cos-brief
      Expect the brief in about 2-3 minutes and at most 3 tool calls.
+     (The skill needs SMARTSHEET_ACCESS_TOKEN in $ENV_FILE; see README.md.)
   4. After the next long task, run:  sh $PKG_DIR/diagnose/collect.sh
      and send me the report it writes.
-Rollback at any time:  sh $PKG_DIR/rollback.sh
+Rollback at any time:  sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
 MSG
