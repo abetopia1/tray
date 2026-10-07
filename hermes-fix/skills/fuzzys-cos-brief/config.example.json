@@ -1,0 +1,24 @@
+{
+  "timezone": "America/Los_Angeles",
+  "lookahead_days": 14,
+  "ignore_columns": [
+    "Modified", "Modified By", "Created", "Created By", "Comments", "Attachments",
+    "a5 Weeks Away", "Weeks Away"
+  ],
+  "sheets": [
+    {
+      "label": "All Sites Master",
+      "id": 3862429172715396,
+      "key_column": "a6 Original Restaurant Number",
+      "date_columns": [],
+      "required_columns": []
+    },
+    {
+      "label": "Network Stack",
+      "id": 3764671690526596,
+      "key_column": "Original Restaurant Number",
+      "date_columns": [],
+      "required_columns": []
+    }
+  ]
+}
