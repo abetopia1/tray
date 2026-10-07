@@ -33,5 +33,6 @@ fi
 rm -f "$BACKUP_DIR/LAST"
 echo "ANTHROPIC_API_KEY (if added) stays in $HERMES_HOME/.env; delete that line by hand if you want it gone."
 if command -v hermes >/dev/null 2>&1; then
-  hermes gateway restart || echo "gateway restart returned non-zero; check 'hermes gateway status'"
+  # Profiles are served by the default profile's gateway; restart that one.
+  HERMES_HOME="$HOME/.hermes" hermes gateway restart || echo "gateway restart returned non-zero; check 'hermes gateway status'"
 fi

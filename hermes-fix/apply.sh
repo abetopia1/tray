@@ -44,6 +44,16 @@ die() { echo "error: $*" >&2; exit 1; }
 
 PKG_DIR="$(cd "$(dirname "$0")" && pwd)"
 HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+ROOT_HOME="$HOME/.hermes"
+# A profile is a separate Hermes home under ~/.hermes/profiles/<name>. Its
+# gateway is the default profile's multiplexing gateway, so the restart and
+# the verification commands below address the profile with -p.
+PROFILE=""
+case "$HERMES_HOME" in
+  "$ROOT_HOME"/profiles/*) PROFILE="${HERMES_HOME#"$ROOT_HOME"/profiles/}"; PROFILE="${PROFILE%%/*}" ;;
+esac
+HERMES_P=""
+[ -n "$PROFILE" ] && HERMES_P="-p $PROFILE "
 CONFIG="$HERMES_HOME/config.yaml"
 ENV_FILE="$HERMES_HOME/.env"
 SOUL="$HERMES_HOME/SOUL.md"
@@ -52,14 +62,15 @@ BACKUP_DIR="$HERMES_HOME/backups/efficiency-fix"
 STAMP="$(date +%Y%m%d-%H%M%S)-$$"   # the pid keeps two runs in one second from sharing a backup
 
 command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Open a new Terminal or run: export PATH=\"\$HOME/.local/bin:\$PATH\""
-[ -d "$HERMES_HOME" ] || die "$HERMES_HOME does not exist. Run 'hermes setup' first."
-[ -f "$CONFIG" ] || die "$CONFIG not found. Run 'hermes model' once so Hermes writes its config."
+[ -d "$HERMES_HOME" ] || die "$HERMES_HOME does not exist. Run 'hermes ${HERMES_P}setup' first."
+[ -f "$CONFIG" ] || die "$CONFIG not found. Run 'hermes ${HERMES_P}model' once so Hermes writes its config."
 
 # A Python that can import PyYAML. The Hermes venv always has one.
 find_python() {
   for cand in "${HERMES_PY:-}" \
+              "$ROOT_HOME"/installs/*/environments/*/bin/python3 \
+              "$ROOT_HOME"/installs/*/environments/*/bin/python \
               "$HERMES_HOME"/installs/*/environments/*/bin/python3 \
-              "$HERMES_HOME"/installs/*/environments/*/bin/python \
               "$HERMES_HOME/hermes-agent/venv/bin/python3" \
               "$HERMES_HOME/hermes-agent/.venv/bin/python3" \
               "$HERMES_HOME/venv/bin/python3" \
@@ -84,7 +95,7 @@ find_python() {
 
 PY="$(find_python)" || die "no Python with PyYAML found. Run: python3 -m pip install pyyaml   (or set HERMES_PY=/path/to/hermes/venv/bin/python3)"
 
-echo "== Hermes efficiency fix: tier=$TIER  home=$HERMES_HOME  python=$PY"
+echo "== Hermes efficiency fix: tier=$TIER  home=$HERMES_HOME${PROFILE:+  profile=$PROFILE}  python=$PY"
 if [ "$DRY_RUN" -eq 1 ]; then
   echo "== dry run: nothing will be written"
 fi
@@ -182,10 +193,12 @@ if [ "$DO_SKILL" -eq 1 ]; then
   fi
 fi
 
-# 6. Restart the gateway so the new config is live
+# 6. Restart the gateway so the new config is live. A profile is served by the
+#    default profile's multiplexing gateway, so that is the one to restart;
+#    starting a second gateway inside the profile would fight over the bot.
 if [ "$DRY_RUN" -eq 0 ] && [ "$RESTART" -eq 1 ]; then
-  echo "== restarting gateway"
-  hermes gateway restart || echo "   gateway restart returned non-zero; run 'hermes gateway status' and 'hermes doctor'"
+  echo "== restarting the default gateway"
+  HERMES_HOME="$ROOT_HOME" hermes gateway restart || echo "   gateway restart returned non-zero; run 'hermes gateway status' and 'hermes ${HERMES_P}doctor'"
 fi
 
 if [ "$DRY_RUN" -eq 1 ]; then
@@ -197,12 +210,13 @@ fi
 cat <<MSG
 
 Done. Verify in this order:
-  1. hermes doctor                      # auth + config sanity
-  2. hermes config get model.default    # expect $( [ "$TIER" = claude ] && echo claude-opus-5-5 || echo MiniMax-M2.7-highspeed )
-  3. From iMessage, send:  /fuzzys-cos-brief
+  1. hermes ${HERMES_P}doctor                      # auth + config sanity
+  2. hermes ${HERMES_P}config get model.default    # expect $( [ "$TIER" = claude ] && echo claude-opus-5-5 || echo MiniMax-M2.7-highspeed )
+  3. Run the brief once from Terminal, inside this profile:
+       hermes ${HERMES_P}chat --oneshot -q "Run the Fuzzy's Chief of Staff brief with the fuzzys-cos-brief skill"
      Expect the brief in about 2-3 minutes and at most 3 tool calls.
      (The skill needs SMARTSHEET_ACCESS_TOKEN in $ENV_FILE; see README.md.)
-  4. After the next long task, run:  sh $PKG_DIR/diagnose/collect.sh
+  4. After the next long task, run:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/diagnose/collect.sh
      and send me the report it writes.
-Rollback at any time:  sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
+Rollback at any time:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
 MSG
