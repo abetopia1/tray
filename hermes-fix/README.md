@@ -123,11 +123,33 @@ ids and key columns are already pinned in
 `Original Restaurant Number`). Fix them there if the printout disagrees, and
 add date columns if the detected list looks wrong.
 
+## Profiles
+
+A Hermes profile is a separate home under `~/.hermes/profiles/<name>` with
+its own config, `.env`, SOUL.md, and skills. The fix only touches the home
+it is pointed at, so a profile that should run the brief needs its own
+apply. Point `HERMES_HOME` at the profile:
+
+```sh
+HERMES_HOME=~/.hermes/profiles/fuzzys sh apply.sh --tier fast
+printf 'SMARTSHEET_ACCESS_TOKEN=paste-here\n' >> ~/.hermes/profiles/fuzzys/.env
+hermes -p fuzzys chat --oneshot -q "Run the Fuzzy's Chief of Staff brief with the fuzzys-cos-brief skill"
+```
+
+The script knows a profile home when it sees one. It restarts the default
+profile's gateway, which serves every profile, instead of starting a second
+gateway inside the profile, and it prints its verification commands with
+`-p <name>`. A profile whose bot credential is a copy of the default's is
+parked by that gateway and gets no messages, so run the brief from Terminal
+as above, or give the profile its own line with `hermes -p fuzzys photon
+setup`. Rollback and the diagnostic take the same `HERMES_HOME`.
+
 ## Verify
 
 1. `hermes doctor` reports no config errors.
 2. `hermes config get model.default` prints the tier's model.
-3. From iMessage send `/fuzzys-cos-brief`. Expect the brief in 2 to 3 minutes.
+3. From iMessage send `/fuzzys-cos-brief`, or from Terminal run the
+   `hermes chat --oneshot` line above. Expect the brief in 2 to 3 minutes.
 4. After the next long task, run `sh diagnose/collect.sh` and send back the
    report path it prints. The report includes the per-step timeline of the
    slowest turn and a model-bound or tool-bound verdict.

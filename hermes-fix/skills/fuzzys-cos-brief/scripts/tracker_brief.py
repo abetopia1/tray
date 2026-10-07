@@ -27,7 +27,22 @@ from datetime import date, datetime, timedelta, timezone
 API = "https://api.smartsheet.com/2.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONFIG = os.path.normpath(os.path.join(HERE, "..", "config.json"))
-HERMES_HOME = os.path.expanduser(os.environ.get("HERMES_HOME", "~/.hermes"))
+
+
+def hermes_home():
+    """The Hermes home this skill is installed in: env first, then the
+    skill's own location (<home>/skills/fuzzys-cos-brief/scripts), so a
+    profile install finds its own .env and cache without any environment."""
+    env = os.environ.get("HERMES_HOME")
+    if env:
+        return os.path.expanduser(env)
+    derived = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
+    if os.path.basename(os.path.dirname(derived)) in ("profiles",) or os.path.exists(os.path.join(derived, "config.yaml")):
+        return derived
+    return os.path.expanduser("~/.hermes")
+
+
+HERMES_HOME = hermes_home()
 ENV_PATH = os.path.join(HERMES_HOME, ".env")
 STATE_DIR = os.path.join(HERMES_HOME, "cache", "fuzzys-brief")
 PAGE_SIZE = 5000
