@@ -1,0 +1,8 @@
+# Tier "fast": keep the existing MiniMax OAuth login, switch to the high-speed
+# variant, and trim thinking. No new account, no API key.
+model:
+  provider: minimax-oauth
+  default: MiniMax-M2.7-highspeed
+  base_url: https://api.minimax.io/anthropic
+agent:
+  reasoning_effort: low

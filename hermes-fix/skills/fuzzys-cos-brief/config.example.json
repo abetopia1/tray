@@ -1,0 +1,22 @@
+{
+  "timezone": "America/Los_Angeles",
+  "lookahead_days": 14,
+  "ignore_columns": ["Modified", "Modified By", "Created", "Created By", "Comments", "Attachments"],
+  "sheets": [
+    {
+      "label": "All Sites Master",
+      "id": 3862429172715396,
+      "key_column": null,
+      "date_columns": [],
+      "required_columns": []
+    },
+    {
+      "label": "Network Stack",
+      "id": null,
+      "name_match": "Network Stack",
+      "key_column": null,
+      "date_columns": [],
+      "required_columns": []
+    }
+  ]
+}

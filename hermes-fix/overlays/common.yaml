@@ -1,0 +1,52 @@
+# Hermes efficiency overlay, shared by both tiers.
+# merge_config.py deep-merges this into ~/.hermes/config.yaml. Keys not listed
+# here are left exactly as they were.
+
+agent:
+  # Wall-clock budget for one run. Hermes tells the model to wrap up at 80%
+  # (16 min) and ends the run at 20 min with whatever it has. Raise this for
+  # a job you know is long; do not leave it unset, because unset means an hour.
+  run_budget_seconds: 1200
+  # Iteration cap for one run, kept at the 60 the gateway already shows. The
+  # fix is seconds per iteration, not fewer iterations. budget_warning_ratio
+  # needs a finite cap to post its wrap-up checkpoint.
+  max_turns: 60
+  budget_warning_ratio: 0.7
+  stall_guards: true
+  turn_liveness:
+    timeout_s: 300
+    poll_s: 15
+
+terminal:
+  # Per-command timeout. A hung command no longer holds an iteration for 3 min.
+  timeout: 120
+
+tool_output:
+  # Smaller tool outputs keep every later model call fast and cheap.
+  max_bytes: 20000
+  max_lines: 800
+
+compression:
+  threshold: 0.40
+
+auxiliary:
+  compression:
+    reasoning_effort: low
+  title_generation:
+    model_upgrade_enabled: false
+  approval:
+    reasoning_effort: none
+
+delegation:
+  child_timeout_seconds: 600
+  max_concurrent_children: 2
+  max_iterations: 40
+
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: true
+  hard_stop_after:
+    exact_failure: 3
+    same_tool_failure: 5
+    idempotent_no_progress: 3
+

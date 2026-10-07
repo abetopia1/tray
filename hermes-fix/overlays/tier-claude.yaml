@@ -1,0 +1,27 @@
+# Tier "claude": Claude Opus 5.5 as the main driver, MiniMax high-speed as the
+# fallback, Haiku 4.5 for side tasks. Needs ANTHROPIC_API_KEY in ~/.hermes/.env.
+model:
+  provider: anthropic
+  default: claude-opus-5-5
+  # Clear the MiniMax endpoint override; with it set, Anthropic calls would be
+  # routed to api.minimax.io.
+  base_url: ""
+  # Deliberate cap (the model allows 1M). It keeps requests lean and makes
+  # compression fire early, which is what keeps iterations fast.
+  context_length: 200000
+agent:
+  reasoning_effort: medium
+fallback_providers:
+  - provider: minimax-oauth
+    model: MiniMax-M2.7-highspeed
+auxiliary:
+  compression:
+    provider: anthropic
+    model: claude-haiku-4-5
+    reasoning_effort: low
+  title_generation:
+    provider: anthropic
+    model: claude-haiku-4-5
+  approval:
+    provider: anthropic
+    model: claude-haiku-4-5
