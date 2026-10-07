@@ -91,12 +91,12 @@ Two files come with the overlay.
 On the Mac, in Terminal:
 
 ```sh
-cd ~/Downloads
-git clone --branch claude/hermes-efficiency-fix-8d233b https://github.com/abetopia1/tray.git tray-hermes-fix
-cd tray-hermes-fix/hermes-fix
-sh apply.sh --tier fast --dry-run     # shows the config diff, changes nothing
-sh apply.sh --tier fast               # applies, backs up, restarts the gateway
+cd ~/Downloads && git clone https://github.com/abetopia1/tray.git tray-hermes-fix
+sh tray-hermes-fix/hermes-fix/apply.sh --tier fast     # backs up, applies, restarts the gateway
 ```
+
+Add `--dry-run` to the second command to see the config diff without
+changing anything.
 
 Pick a tier.
 
