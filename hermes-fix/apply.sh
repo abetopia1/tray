@@ -195,7 +195,7 @@ if [ "$DO_SKILL" -eq 1 ]; then
     if ! grep -q '^SMARTSHEET_ACCESS_TOKEN=' "$ENV_FILE" 2>/dev/null; then
       echo "   note: SMARTSHEET_ACCESS_TOKEN is not in $ENV_FILE yet; the brief skill needs it."
       echo "   Smartsheet > Personal Settings > API Access > Generate, then:"
-      echo "   echo 'SMARTSHEET_ACCESS_TOKEN=paste-here' >> $ENV_FILE"
+      echo "   HERMES_HOME=\"$HERMES_HOME\" sh $PKG_DIR/set_token.sh"
     fi
   fi
 fi
@@ -222,7 +222,7 @@ Done. Verify in this order:
   3. Run the brief once from Terminal, inside this profile:
        hermes ${HERMES_P}chat --oneshot -q "Run the Fuzzy's Chief of Staff brief with the fuzzys-cos-brief skill"
      Expect the brief in about 2-3 minutes and at most 3 tool calls.
-     (The skill needs SMARTSHEET_ACCESS_TOKEN in $ENV_FILE; see README.md.)
+     (The skill needs SMARTSHEET_ACCESS_TOKEN in $ENV_FILE; HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/set_token.sh stores it.)
   4. After the next long task, run:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/diagnose/collect.sh
      and send me the report it writes.
 Rollback at any time:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
