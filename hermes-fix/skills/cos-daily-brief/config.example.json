@@ -1,0 +1,72 @@
+{
+  "timezone": "America/Los_Angeles",
+  "run_root": "~/.hermes/profiles/fuzzys/workspaces/chief-of-staff/runs-v2",
+  "desktop": "~/Desktop",
+  "total_timeout_seconds": 540,
+  "horizon": {"days_back": 7, "days_ahead": 30},
+  "smartsheet": {
+    "timeout_seconds": 240,
+    "sheets": [
+      {"label": "master", "id": 3862429172715396, "expected_title": "[Fuzzy's - Toast] All Sites Master", "key_column": "a6 Original Restaurant Number"},
+      {"label": "network", "id": 3764671690526596, "expected_title": "[Fuzzy's - Toast] Network Stack tracker", "key_column": "Original Restaurant Number"},
+      {"label": "issues", "name_match": "Issues", "optional": true}
+    ],
+    "ignore_columns": ["Modified", "Modified By", "Created", "Created By", "Comments", "Attachments", "a5 Weeks Away", "Weeks Away"],
+    "master_label": "master",
+    "network_label": "network",
+    "master_columns": {
+      "name": "a7 Restaurant name",
+      "group": "a8 Operating Group",
+      "fbc": "FBC",
+      "planning_date": "a3 Dine Planning Date",
+      "pos": "POS System",
+      "status": "Restaurant Status",
+      "install_date": "c11 - Toast HW Install Date [H]"
+    },
+    "network_columns": {
+      "number": "Original Restaurant Number",
+      "planning_date": "Dine Planning Date",
+      "msp_status": "MSP Status",
+      "confirmed": "MSP Changeover Date confirmed"
+    },
+    "network_detail_columns": [
+      "MSP Status", "MSP Choice", "Contract Status", "MSP Changeover Target date", "MSP Changeover Date confirmed",
+      "Spectrum Install Tech Scheduled", "Cut sheet - Site Survey Status", "Site Prep completed",
+      "Spectrum Foot Print (In/out)", "Toast Confirmed Cut-Over Date", "Dine Planning Date",
+      "MSP Kick-off Deadline", "MSP Conversion Deadline", "Pending Scale (Mel) to connect", "Original MSP"
+    ]
+  },
+  "plaud": {
+    "enabled": true,
+    "root": "~/.plaud-daily-recap",
+    "collector": "~/.plaud-daily-recap/collect_plaud.py",
+    "days": 2,
+    "timeout_seconds": 300,
+    "max_recordings_per_day": 6
+  },
+  "calendar": {
+    "enabled": true,
+    "interpreter": "~/.hermes/tools/lifeos/.venv/bin/python",
+    "days_back": 1,
+    "days_ahead": 14,
+    "timeout_seconds": 90
+  },
+  "desktop_docs": {
+    "enabled": true,
+    "timeout_seconds": 60,
+    "scale_export": {
+      "glob": ["~/Desktop/MSP_Scale*.xlsx", "~/Downloads/MSP_Scale*.xlsx"],
+      "orn_header": "ORN", "orn_column": "R",
+      "confirmed_header": "Install Schedule Date Confirmed", "confirmed_column": "I",
+      "status_header": "Order Status", "status_column": "F",
+      "stale_after_days": 3
+    }
+  },
+  "screens": {
+    "enabled": true,
+    "timeout_seconds": 180,
+    "cua_driver": "/Users/abem./.hermes/tools/cua-driver-0.21.0-darwin-arm64/CuaDriver.app/Contents/MacOS/cua-driver",
+    "apps": ["Microsoft Outlook", "Microsoft Teams"],
+    "dine_tenant_marker": "Dine Brands"
+  }
+}

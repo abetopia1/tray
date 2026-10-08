@@ -30,15 +30,16 @@ DEFAULT_CONFIG = os.path.normpath(os.path.join(HERE, "..", "config.json"))
 
 
 def hermes_home():
-    """The Hermes home this skill is installed in: env first, then the
-    skill's own location (<home>/skills/fuzzys-cos-brief/scripts), so a
-    profile install finds its own .env and cache without any environment."""
+    """The Hermes home this skill is installed in. The skill's own location
+    (<home>/skills/fuzzys-cos-brief/scripts) wins over HERMES_HOME, because a
+    gateway serving several profiles can hand a profile's script the default
+    profile's environment."""
+    derived = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
+    if os.path.basename(os.path.dirname(derived)) == "profiles" or os.path.exists(os.path.join(derived, "config.yaml")):
+        return derived
     env = os.environ.get("HERMES_HOME")
     if env:
         return os.path.expanduser(env)
-    derived = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-    if os.path.basename(os.path.dirname(derived)) in ("profiles",) or os.path.exists(os.path.join(derived, "config.yaml")):
-        return derived
     return os.path.expanduser("~/.hermes")
 
 
