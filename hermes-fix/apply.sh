@@ -67,15 +67,22 @@ command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Open a new Term
 
 # A Python that can import PyYAML. The Hermes venv always has one.
 find_python() {
+  # The install lives under the root home even when a profile is the target.
   for cand in "${HERMES_PY:-}" \
               "$ROOT_HOME"/installs/*/environments/*/bin/python3 \
               "$ROOT_HOME"/installs/*/environments/*/bin/python \
-              "$HERMES_HOME"/installs/*/environments/*/bin/python3 \
-              "$HERMES_HOME/hermes-agent/venv/bin/python3" \
-              "$HERMES_HOME/hermes-agent/.venv/bin/python3" \
-              "$HERMES_HOME/venv/bin/python3" \
+              "$ROOT_HOME/hermes-agent/venv/bin/python3" \
+              "$ROOT_HOME/hermes-agent/.venv/bin/python3" \
+              "$ROOT_HOME/venv/bin/python3" \
+              "$ROOT_HOME/.venv/bin/python3" \
               "$HOME/.hermes-agent/venv/bin/python3"; do
     if [ -n "$cand" ] && [ -x "$cand" ] && "$cand" -c 'import yaml' >/dev/null 2>&1; then
+      echo "$cand"; return 0
+    fi
+  done
+  # Unknown layout: any python3 under the root home that can import yaml.
+  for cand in $(find "$ROOT_HOME" -maxdepth 6 -type f -name python3 -path '*/bin/*' 2>/dev/null | head -40); do
+    if [ -x "$cand" ] && "$cand" -c 'import yaml' >/dev/null 2>&1; then
       echo "$cand"; return 0
     fi
   done
@@ -93,7 +100,7 @@ find_python() {
   return 1
 }
 
-PY="$(find_python)" || die "no Python with PyYAML found. Run: python3 -m pip install pyyaml   (or set HERMES_PY=/path/to/hermes/venv/bin/python3)"
+PY="$(find_python)" || die "no Python with PyYAML found under $ROOT_HOME. Point HERMES_PY at Hermes's own interpreter, for example: HERMES_PY=\"\$(find \$HOME/.hermes -name python3 -path '*/bin/*' | head -1)\" sh apply.sh ...   or run: python3 -m pip install pyyaml"
 
 echo "== Hermes efficiency fix: tier=$TIER  home=$HERMES_HOME${PROFILE:+  profile=$PROFILE}  python=$PY"
 if [ "$DRY_RUN" -eq 1 ]; then
