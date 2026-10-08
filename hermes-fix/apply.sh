@@ -57,7 +57,7 @@ HERMES_P=""
 CONFIG="$HERMES_HOME/config.yaml"
 ENV_FILE="$HERMES_HOME/.env"
 SOUL="$HERMES_HOME/SOUL.md"
-SKILL_DEST="$HERMES_HOME/skills/fuzzys-cos-brief"
+SKILLS_DEST="$HERMES_HOME/skills"
 BACKUP_DIR="$HERMES_HOME/backups/efficiency-fix"
 STAMP="$(date +%Y%m%d-%H%M%S)-$$"   # the pid keeps two runs in one second from sharing a backup
 
@@ -178,20 +178,28 @@ if [ "$DO_SOUL" -eq 1 ]; then
   fi
 fi
 
-# 5. The one-script brief skill
+# 5. The brief skills: fuzzys-cos-brief (two-tracker brief, one script) and
+#    cos-daily-brief (the full morning brief: one collector, one writing step)
 if [ "$DO_SKILL" -eq 1 ]; then
-  if [ "$DRY_RUN" -eq 1 ]; then
-    echo "== would install skill to $SKILL_DEST"
-  else
+  for SKILL_SRC in "$PKG_DIR"/skills/*/; do
+    SKILL_NAME="$(basename "$SKILL_SRC")"
+    SKILL_DEST="$SKILLS_DEST/$SKILL_NAME"
+    if [ "$DRY_RUN" -eq 1 ]; then
+      echo "== would install skill $SKILL_NAME to $SKILL_DEST"
+      continue
+    fi
     mkdir -p "$SKILL_DEST/scripts"
-    cp "$PKG_DIR/skills/fuzzys-cos-brief/SKILL.md" "$SKILL_DEST/SKILL.md"
-    for f in "$PKG_DIR"/skills/fuzzys-cos-brief/scripts/*; do
+    cp "$SKILL_SRC/SKILL.md" "$SKILL_DEST/SKILL.md"
+    for f in "$SKILL_SRC"/scripts/*; do
       [ -f "$f" ] && cp "$f" "$SKILL_DEST/scripts/"
     done
-    if [ ! -f "$SKILL_DEST/config.json" ]; then
-      cp "$PKG_DIR/skills/fuzzys-cos-brief/config.example.json" "$SKILL_DEST/config.json"
+    if [ -f "$SKILL_SRC/config.example.json" ]; then
+      cp "$SKILL_SRC/config.example.json" "$SKILL_DEST/config.example.json"
+      [ -f "$SKILL_DEST/config.json" ] || cp "$SKILL_SRC/config.example.json" "$SKILL_DEST/config.json"
     fi
     echo "== skill installed: $SKILL_DEST (config.json kept if it already existed)"
+  done
+  if [ "$DRY_RUN" -eq 0 ]; then
     if ! grep -q '^SMARTSHEET_ACCESS_TOKEN=' "$ENV_FILE" 2>/dev/null; then
       echo "   note: SMARTSHEET_ACCESS_TOKEN is not in $ENV_FILE yet; the brief skill needs it."
       echo "   Smartsheet > Personal Settings > API Access > Generate, then:"
@@ -225,5 +233,7 @@ Done. Verify in this order:
      (The skill needs SMARTSHEET_ACCESS_TOKEN in $ENV_FILE; HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/set_token.sh stores it.)
   4. After the next long task, run:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/diagnose/collect.sh
      and send me the report it writes.
+  5. For the full morning brief (cos-daily-brief skill, one collector + one writing step) and the
+     cron swap, see README.md, "The daily brief, rebuilt".
 Rollback at any time:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
 MSG

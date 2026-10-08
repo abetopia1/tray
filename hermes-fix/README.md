@@ -107,6 +107,45 @@ Two files come with the overlay.
   last delivered brief, and prints the brief. Three tool calls, no browser,
   no captures.
 
+## The daily brief, rebuilt
+
+The morning Chief of Staff brief is a second, larger job: the old
+`chief-of-staff-brief` skill walked nine steps across Smartsheet, Plaud,
+screenshots of Outlook and Teams, Desktop files, EventKit and a browser
+cache, with the model deciding every step. Its runs took two hours, and the
+30-minute wrapper that bounded them marked a complete brief as failed when
+the final save missed the cutoff.
+
+`skills/cos-daily-brief/` replaces that with one collector and one writing
+step.
+
+| Step | Tool calls | What happens |
+|---|---|---|
+| collect | 1 | `cos_collect.py` reads every source in parallel threads, each with its own time cap (Smartsheet 240 s, Plaud 300 s, calendar 90 s, Desktop files 60 s, screenshots 180 s; 540 s overall). It writes the raw evidence, a coverage ledger, and one bundle with the tracker diff, the horizon reconciliation, the in-window sites with their blank milestones, Network and Scale-export conflicts found in code, the calendar with overlaps, Plaud notes and commitment excerpts, and Abe's same-day drafts with their store numbers checked. |
+| read | 3 to 5 | the bundle comes in parts under the tool-output cap; the model reads them in one turn |
+| write | 1 | the five-section brief, same shape as before |
+| check | 1 | `cos_check.py` rejects em dashes, emoji, a missing section and any store number that is not in the live Master, then copies the brief to the Desktop under a timed name that never overwrites |
+
+A source that fails or hangs is BLOCKED in the ledger with the reason, and
+the rest of the brief still lands. Expect 10 to 15 minutes end to end on
+the claude tier, against two hours before.
+
+`apply.sh` installs the skill. The cron job is a deliberate swap, so it is
+not automated:
+
+```sh
+hermes -p fuzzys cron pause b7dee36991a7
+hermes -p fuzzys cron create "0 8 * * *" "Run the Chief of Staff daily brief with the cos-daily-brief skill." \
+  --skill cos-daily-brief --name "Chief of Staff Daily Brief v2" --deliver local
+hermes -p fuzzys chat --oneshot -q "Run the Chief of Staff daily brief with the cos-daily-brief skill."   # first run by hand, timed
+```
+
+Three settings in `~/.hermes/profiles/fuzzys/skills/cos-daily-brief/config.json`
+may need a look after the first run: the Issues sheet (`name_match: Issues`,
+optional; pin its id if the ledger says several sheets match), the EventKit
+interpreter path, and the cua-driver path for the screenshots. The ledger
+names whichever one is wrong.
+
 ## Install
 
 On the Mac, in Terminal:
@@ -200,6 +239,7 @@ place.
 | `overlays/tier-fast.yaml`, `overlays/tier-claude.yaml` | model choice per tier |
 | `rules/SOUL-efficiency.md` | operating rules appended to SOUL.md |
 | `skills/fuzzys-cos-brief/` | SKILL.md, config.example.json, scripts/tracker_brief.py |
+| `skills/cos-daily-brief/` | SKILL.md, config.example.json, scripts/cos_collect.py, cos_check.py, calendar_read.py |
 | `diagnose/collect.sh` | read-only diagnostic bundle |
 | `diagnose/hermes_timeline.py` | per-turn timeline from `~/.hermes/state.db` |
 

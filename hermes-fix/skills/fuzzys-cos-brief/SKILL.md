@@ -12,10 +12,12 @@ metadata:
 
 # Fuzzy's Chief of Staff brief
 
-Use this skill when Abraham asks for the Fuzzy's brief, the Chief of Staff
-brief, the morning brief, a tracker status report, "what changed in the
-trackers", "check the All Sites Master", "check the Network Stack", or
-anything about captured tracker files. A cron job can attach it with -s.
+Use this skill when Abraham asks for the quick Fuzzy's tracker brief, a
+tracker status report, "what changed in the trackers", "check the All Sites
+Master", "check the Network Stack", or anything about captured tracker
+files. The full morning Chief of Staff brief (calendar, Plaud, drafts, five
+sections) is the `cos-daily-brief` skill, not this one. A cron job can
+attach this skill with -s.
 
 The budget is 3 tool calls and under 3 minutes. The script reads both
 trackers through the Smartsheet API, diffs them against the last delivered
