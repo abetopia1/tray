@@ -4,5 +4,8 @@ model:
   provider: minimax-oauth
   default: MiniMax-M2.7-highspeed
   base_url: https://api.minimax.io/anthropic
+  # Empty clears a wire mode left over from another provider; the /anthropic
+  # suffix above auto-detects anthropic_messages.
+  api_mode: ""
 agent:
   reasoning_effort: low

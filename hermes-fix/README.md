@@ -1,9 +1,9 @@
 # Hermes efficiency fix
 
 A task Claude finishes in 3 minutes took Hermes over an hour. This package
-says why and fixes it. Everything here runs on the Mac that hosts Hermes.
-Nothing has been applied yet, because the cloud session that built this
-could not reach the Mac.
+says why and fixes it. Everything here runs on the Mac that hosts Hermes;
+the cloud session that built it cannot reach the Mac, so `apply.sh` is the
+install.
 
 ## What happened
 
@@ -53,6 +53,27 @@ Four causes, each fixed by a different part of the package:
 The split between model time and tool time is a reading of nine samples, not
 a measurement. `diagnose/collect.sh` reconstructs the real timeline from
 Hermes's session database so the ranking can be checked against evidence.
+
+### Measured on the Mac
+
+The first diagnostic (October 8, fuzzys profile) settled the ranking. The
+longest run of the previous three days was an 83-minute cron turn on
+`gpt-6.1-sol` through the Codex route at `reasoning_effort: ultra`.
+
+| Measure | Value |
+|---|---|
+| time waiting on the model | 93% (16 calls, 4m50s average) |
+| longest single model call | 72m50s, a silent Codex hang that Hermes retried by resending the whole 0.9 MB payload |
+| largest tool result | 192,716 chars, one screenshot read by `vision_analyze` |
+| request payload by the end | 1.7 MB (today's run), compaction pass 1m37s |
+| identical tool calls repeated | 15 |
+
+So the two-hour briefs were model-bound, and the model was slow because
+every call carried megabytes of screenshots and tool output. The claude tier
+plus the output caps address exactly that. One more thing the diagnostic
+showed: a provider switch leaves `model.api_mode: codex_responses` behind,
+and Hermes applies it to whatever provider is named. The overlays now clear
+it.
 
 ## What the package changes
 
@@ -109,10 +130,11 @@ Pick a tier.
   it at all. With that in place, run `hermes model`, choose Anthropic OAuth,
   then `sh apply.sh --tier claude --oauth`. Without it, use the API key.
 
-The brief skill needs a Smartsheet token once:
+The brief skill needs a Smartsheet token once (Smartsheet > Personal
+Settings > API Access):
 
 ```sh
-printf 'SMARTSHEET_ACCESS_TOKEN=paste-here\n' >> ~/.hermes/.env   # Smartsheet > Personal Settings > API Access
+sh tray-hermes-fix/hermes-fix/set_token.sh      # prompts for the token with input hidden, checks it, writes ~/.hermes/.env
 python3 ~/.hermes/skills/fuzzys-cos-brief/scripts/tracker_brief.py --show-columns
 ```
 
@@ -132,7 +154,7 @@ apply. Point `HERMES_HOME` at the profile:
 
 ```sh
 HERMES_HOME=~/.hermes/profiles/fuzzys sh apply.sh --tier fast
-printf 'SMARTSHEET_ACCESS_TOKEN=paste-here\n' >> ~/.hermes/profiles/fuzzys/.env
+HERMES_HOME=~/.hermes/profiles/fuzzys sh set_token.sh
 hermes -p fuzzys chat --oneshot -q "Run the Fuzzy's Chief of Staff brief with the fuzzys-cos-brief skill"
 ```
 
@@ -172,6 +194,7 @@ place.
 |---|---|
 | `apply.sh` | one-command install with backup, diff, restart |
 | `rollback.sh` | restore the pre-fix backup |
+| `set_token.sh` | store the Smartsheet token in `.env` with hidden input and an API check |
 | `merge_config.py` | deep-merges the overlays into config.yaml, prints the diff |
 | `overlays/common.yaml` | settings shared by both tiers |
 | `overlays/tier-fast.yaml`, `overlays/tier-claude.yaml` | model choice per tier |
