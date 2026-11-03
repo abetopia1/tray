@@ -4,7 +4,7 @@ the library database and never writes to it. Writing goes through osascript
 and is limited to creating folders and albums and adding items to albums.
 There is no code path here that deletes a media item.
 
-  python3 pt_photos.py --probe        # create a test folder and album, add one photo, verify, remove the test album
+  python3 pt_photos.py --probe        # create a test folder and album, add one photo, verify, remove both again
   python3 pt_photos.py --tree         # list the Hermes Tidy folder, its albums and counts
   python3 pt_photos.py --library-info # which library osxphotos will read
 
@@ -315,11 +315,25 @@ def delete_album(album_id):
 
 
 def delete_folder_if_empty(chain):
-    ref = folder_ref(chain)
+    """Photos refuses to delete a nested folder through any scripted reference,
+    so a nested chain is left to go with its top folder. A top-level folder is
+    deleted once no album remains anywhere beneath it."""
+    if len(chain) > 1:
+        return "kept, nested folders leave with their top folder"
     script = f'''
+on albumsBeneath(f)
+    tell application "Photos"
+        set n to count of albums of f
+        repeat with s in folders of f
+            set n to n + (my albumsBeneath(s))
+        end repeat
+        return n
+    end tell
+end albumsBeneath
+
 tell application "Photos"
-    set f to ({ref})
-    if (count of albums of f) is 0 and (count of folders of f) is 0 then
+    set f to ({folder_ref(chain)})
+    if (my albumsBeneath(f)) is 0 then
         delete f
         return "deleted"
     end if
@@ -368,7 +382,7 @@ def probe(cfg):
     print(f"  add: {res}")
     ok = res["in_album"] >= 1 and not res["missing_after_add"]
     delete_album(aid)
-    print(f"  album removed; subfolder {delete_folder_if_empty((fid, sub))}; folder {delete_folder_if_empty((fid,))}")
+    print(f"  album removed; probe folder {delete_folder_if_empty((fid,))}")
     print("PASS" if ok else "FAIL: the photo did not land in the album")
     return 0 if ok else 1
 
