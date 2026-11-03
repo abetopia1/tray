@@ -176,12 +176,20 @@ Install, on the Mac:
 
 ```sh
 cd ~/Downloads/tray-hermes-fix && git pull
-sh hermes-fix/apply.sh --tier fast --skip-soul          # or just copy skills/photo-tidy to ~/.hermes/skills/
-sh ~/.hermes/skills/photo-tidy/setup.sh --ollama        # venv with osxphotos, Pillow, ImageHash, GeoNames; pulls the naming model
+mkdir -p ~/.hermes/skills && cp -R hermes-fix/skills/photo-tidy ~/.hermes/skills/
+sh ~/.hermes/skills/photo-tidy/setup.sh --ollama
 python3 ~/.hermes/skills/photo-tidy/scripts/pt_photos.py --library-info
-python3 ~/.hermes/skills/photo-tidy/scripts/pt_photos.py --probe   # Terminal gets the Photos automation permission here
-python3 ~/.hermes/skills/photo-tidy/scripts/pt_scan.py --limit 300  # trial
+python3 ~/.hermes/skills/photo-tidy/scripts/pt_photos.py --probe
+python3 ~/.hermes/skills/photo-tidy/scripts/pt_scan.py --limit 300
 ```
+
+The copy installs only this skill. `apply.sh --tier fast` installs it too but
+also switches the main model to the fast tier, so use it only when that is
+wanted. `setup.sh` makes the venv with osxphotos, Pillow, ImageHash and
+GeoNames and, with `--ollama`, pulls the naming model (`brew install ollama`
+and `brew services start ollama` first). The probe is run from Terminal so
+Terminal is the app that gets the Photos automation permission. No comments
+on those lines on purpose: zsh passes a pasted `# comment` to the command.
 
 Then in chat: "tidy my photos", review, approve, "apply the photo plan".
 Settings live in `~/.hermes/skills/photo-tidy/config.json`; the ones

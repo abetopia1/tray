@@ -80,7 +80,7 @@ fi
 "$VENV/bin/python3" -c 'import osxphotos, PIL, pillow_heif, imagehash, reverse_geocoder; print("== libraries ok: osxphotos", osxphotos.__version__)'
 
 if [ "$OLLAMA" -eq 1 ]; then
-  command -v ollama >/dev/null 2>&1 || die "ollama is not on PATH. Install it from https://ollama.com, start it, then re-run with --ollama."
+  command -v ollama >/dev/null 2>&1 || die "ollama is not on PATH. Install it (brew install ollama && brew services start ollama, or the app from https://ollama.com), then re-run: sh $SKILL_DIR/setup.sh --ollama"
   MODEL="$("$VENV/bin/python3" -c 'import json,sys; c=json.load(open(sys.argv[1])); print(c.get("naming",{}).get("model","qwen3.5:4b"))' "$CONFIG")"
   echo "== pulling naming model $MODEL"
   if ! ollama pull "$MODEL"; then
@@ -96,10 +96,13 @@ fi
 
 cat <<MSG
 
-Done. Next, from Terminal (so macOS asks for the Photos permission here, not inside Hermes):
-  python3 $SKILL_DIR/scripts/pt_photos.py --library-info     # which library will be read, how many items
-  python3 $SKILL_DIR/scripts/pt_photos.py --probe            # makes and removes a test album; expect PASS
-  python3 $SKILL_DIR/scripts/pt_scan.py --limit 300          # trial scan, a minute or two
+Done. Next, from Terminal (so macOS asks for the Photos permission here, not inside Hermes).
+Which library will be read and how many items:
+  python3 $SKILL_DIR/scripts/pt_photos.py --library-info
+Make and remove a test album, expect PASS:
+  python3 $SKILL_DIR/scripts/pt_photos.py --probe
+Trial scan of the newest 300 items, a minute or two:
+  python3 $SKILL_DIR/scripts/pt_scan.py --limit 300
 Then tell Hermes: "tidy my photos" and it follows the skill.
 Config: $CONFIG   (source.mode photos reads the Mac's Photos library, which iCloud Photos syncs from the iPhone)
 MSG
