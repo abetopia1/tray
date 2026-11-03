@@ -111,6 +111,19 @@ ls "$W/fixture/Organized/2023/" | grep -q "Renamed By Test" || fail "renamed fol
 [ "$(find "$W/fixture" -type f | wc -l)" -eq 73 ] || fail "file count changed after apply"
 "$PY" "$S/pt_apply.py" $CFG --run-dir "$RUN" --yes > "$W/apply2.out" || true
 need "$W/apply2.out" "NOT_APPLIED" "second apply must refuse"
+"$PY" - "$RUN" "$S" <<'PY'
+import sys, os, json
+sys.path.insert(0, sys.argv[2])
+import pt_apply, pt_plan
+placed = pt_apply.placed_ids(sys.argv[1])
+moved = [json.loads(l) for l in open(os.path.join(sys.argv[1], "apply.log.jsonl")) if '"op": "move"' in l]
+assert len(placed) >= len(moved) > 50, (len(placed), len(moved))
+assert pt_plan.parse_name('{"name": "Beach Day"}') == "Beach Day"
+assert pt_plan.parse_name('Sure! {"name": "Family Iftar"} there you go') == "Family Iftar"
+assert pt_plan.parse_name('```json\n{"name": "Old Cairo Walk"}\n```') == "Old Cairo Walk"
+assert pt_plan.parse_name('Tundra Brake Job\nmore') == "Tundra Brake Job"
+print("   placed_ids and parse_name ok")
+PY
 
 echo "6 undo"
 "$PY" "$S/pt_undo.py" $CFG --run-dir "$RUN" > "$W/undo_dry.out"

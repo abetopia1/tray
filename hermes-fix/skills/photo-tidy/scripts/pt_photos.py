@@ -173,7 +173,17 @@ def as_str(s):
     return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def osascript(script, timeout=600):
+APPLE_EVENT_TIMEOUT = 1800   # Photos answers a big album slowly; the default Apple event timeout is 120 s (-1712)
+
+
+def with_timeout(script):
+    """Wrap every tell block in a long Apple event timeout."""
+    return (script.replace('tell application "Photos"\n', f'tell application "Photos"\n    with timeout of {APPLE_EVENT_TIMEOUT} seconds\n')
+                  .replace("\nend tell", "\n    end timeout\nend tell"))
+
+
+def osascript(script, timeout=2400):
+    script = with_timeout(script)
     try:
         r = subprocess.run(["osascript", "-"], input=script, capture_output=True, text=True, timeout=timeout)
     except FileNotFoundError:
@@ -263,7 +273,10 @@ end tell'''
 
 
 def album_count(album_id):
-    return int(osascript(f'tell application "Photos" to return (count of media items of album id {as_str(album_id)}) as text') or 0)
+    return int(osascript(f"""
+tell application "Photos"
+    return (count of media items of album id {as_str(album_id)}) as text
+end tell""") or 0)
 
 
 def _add_batch(album_id, item_ids):
@@ -311,7 +324,10 @@ def album_add(album_id, uuids, batch_size=150, on_progress=None):
 
 
 def delete_album(album_id):
-    osascript(f'tell application "Photos" to delete album id {as_str(album_id)}')
+    osascript(f"""
+tell application "Photos"
+    delete album id {as_str(album_id)}
+end tell""")
 
 
 def delete_folder_if_empty(chain):
@@ -370,7 +386,10 @@ def probe(cfg):
     name = cfg["apply"]["photos_folder"] + " probe"
     print(f"probe: folder {name!r}")
     t0 = time.monotonic()
-    one = osascript('tell application "Photos" to return (id of media item 1) as text')
+    one = osascript("""
+tell application "Photos"
+    return (id of media item 1) as text
+end tell""")
     print(f"  one media item id: {one}  ({time.monotonic()-t0:.1f}s)")
     fid, _ = ensure_folder(name)
     print(f"  folder id: {fid}")

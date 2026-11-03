@@ -543,6 +543,22 @@ def rule_name(ev, cfg):
     return C.safe_name(" ".join(parts) or "Photos", 60)
 
 
+def parse_name(content):
+    """The model answers JSON when asked for it, else a line of text, and
+    sometimes JSON wrapped in prose or a code fence."""
+    text = (content or "").strip()
+    m = re.search(r"\{.*?\}", text, re.S)
+    if m:
+        try:
+            v = json.loads(m.group(0)).get("name")
+            if v:
+                return v
+        except ValueError:
+            pass
+    text = re.sub(r"^```\w*|```$", "", text).strip()
+    return text.splitlines()[0] if text else ""
+
+
 def clean_name(s):
     s = re.sub(r"[\"'`*#_\[\]{}<>|\\/]", " ", str(s or ""))
     s = re.sub(r"\s+", " ", s).strip(" .,-:;")
@@ -583,6 +599,35 @@ def signature(ev):
     return C.sha256_text(json.dumps([ev.get("start"), ev.get("end"), ev.get("place"), ev["labels_top"], ev["persons_top"], ev["n"]], sort_keys=True))[:24]
 
 
+NO_FORMAT = {"flag": False}
+
+
+def chat_name(N, ev):
+    """One naming call. Some Ollama runners answer 501 "structured output is
+    unavailable" to format=json; the call is then repeated without it, and
+    later calls skip it from the start."""
+    payload = {
+        "model": N["model"], "stream": False, "think": False,
+        "options": {"temperature": 0.2, "num_predict": 80},
+        "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": event_prompt(ev)}],
+    }
+    if not NO_FORMAT["flag"]:
+        payload["format"] = "json"
+    try:
+        return ollama_post(N["ollama_url"], "/api/chat", payload, N["timeout_seconds"])
+    except urllib.error.HTTPError as err:
+        body = ""
+        try:
+            body = err.read().decode("utf-8", "replace")
+        except Exception:
+            pass
+        if "format" in payload and (err.code == 501 or "structured output" in body.lower() or "format" in body.lower()):
+            NO_FORMAT["flag"] = True
+            payload.pop("format", None)
+            return ollama_post(N["ollama_url"], "/api/chat", payload, N["timeout_seconds"])
+        raise
+
+
 def name_events(events, cfg, led, status, no_llm):
     N = cfg["naming"]
     cache_path = os.path.join(cfg["run_root"], "names_cache.json")
@@ -605,13 +650,9 @@ def name_events(events, cfg, led, status, no_llm):
                 n_cache += 1
             elif llm_ok:
                 try:
-                    res = ollama_post(N["ollama_url"], "/api/chat", {
-                        "model": N["model"], "stream": False, "format": "json", "think": False,
-                        "options": {"temperature": 0.2, "num_predict": 80},
-                        "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": event_prompt(ev)}],
-                    }, N["timeout_seconds"])
+                    res = chat_name(N, ev)
                     content = (res.get("message") or {}).get("content") or ""
-                    name = clean_name((json.loads(content) if content.strip().startswith("{") else {"name": content}).get("name"))
+                    name = clean_name(parse_name(content))
                     if name:
                         ev["name"], ev["name_src"] = name, "ollama"
                         cache[sig] = {"name": name, "model": N["model"], "at": C.iso(C.now_local())}
@@ -652,6 +693,16 @@ def run_plan(args, cfg):
     t0 = time.monotonic()
     try:
         recs = [prep(r) for r in C.read_jsonl(inv_path)]
+        if not args.include_applied:
+            import pt_apply
+            placed = set()
+            for d in C.list_runs(cfg, "apply.log.jsonl"):
+                if os.path.abspath(d) != os.path.abspath(run_dir):
+                    placed |= pt_apply.placed_ids(d)
+            if placed:
+                before = len(recs)
+                recs = [r for r in recs if r["id"] not in placed]
+                led.add("already organised", "COMPLETE", f"{before - len(recs)} items are in albums or folders from earlier applies and are left out (--include-applied overrides)")
         status.update(phase="junk", total=len(recs), force=True)
         junk = find_junk(recs, cfg, led)
         status.update(phase="duplicates", force=True)
@@ -713,6 +764,7 @@ def main(argv=None):
     ap.add_argument("--no-llm", action="store_true")
     ap.add_argument("--no-embed", action="store_true")
     ap.add_argument("--compare-prior", action="store_true")
+    ap.add_argument("--include-applied", action="store_true", help="also plan items an earlier run already put in albums")
     ap.add_argument("--background", action="store_true")
     ap.add_argument("--wait", metavar="RUN_DIR")
     ap.add_argument("--seconds", type=int, default=110)

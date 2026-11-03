@@ -163,6 +163,12 @@ pipeline; Hermes drives it from chat.
 | watch | `pt_watch.py` | items no run has seen; scans and plans only those, matching duplicates against earlier runs. A nightly cron job. | 1 start + polls |
 | search | `pt_search.py` | Abe's real searches (config.json `searches`) against a run, once with only what Photos knew and once with the plan's names and places, so the gain is measurable. | 2 |
 
+A plan leaves out items an earlier apply already placed, so a trial on
+part of the library and a full run later do not make the same albums
+twice; `--include-applied` overrides that. Originals that iCloud keeps
+off the Mac (Optimise Mac Storage) still scan, hash and sort through
+Photos' own derivative images, and only the export step skips them.
+
 Nothing in the skill deletes a photo. The review albums put junk and
 duplicates in front of Abe on the phone; deleting from them is his thumb
 on his phone, with the 30 day Recently Deleted safety net, and the tool

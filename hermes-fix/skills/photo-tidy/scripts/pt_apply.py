@@ -65,6 +65,26 @@ def resolve(plan, dec, cfg):
     return {"junk": junk, "dup_groups": dup_groups, "dup_others": dup_others, "events": events}
 
 
+def placed_ids(run_dir):
+    """Ids a finished apply of `run_dir` put into albums or folders, from its
+    plan and decisions, so a later plan can leave them alone. Empty when the
+    run was never applied or was undone."""
+    log_path = os.path.join(run_dir, "apply.log.jsonl")
+    if not os.path.exists(log_path):
+        return set()
+    if any(r.get("op") == "complete" for r in C.read_jsonl(os.path.join(run_dir, "undo.log.jsonl"))):
+        return set()
+    plan = C.read_json(os.path.join(run_dir, "plan.json"))
+    dec = C.read_json(os.path.join(run_dir, "decisions.json"), {}) or {}
+    if not plan:
+        return set()
+    res = resolve(plan, dec, {})
+    out = set(res["junk"]) | set(res["dup_others"])
+    for ev in res["events"]:
+        out.update(ev["ids"])
+    return out
+
+
 def check_approval(run_dir, plan_path, dec):
     if not dec or not dec.get("approved_at"):
         return "decisions.json has no approval; open the review page, go through the four tabs and press Approve"
@@ -104,7 +124,7 @@ def apply_photos(res, cfg, log, status):
         log({"op": "album", "id": aid, "name": name, "chain": chain, "kind": kind, "created": True})
         r = P.album_add(aid, ids, batch_size=int(A.get("batch_size", 150)))
         log({"op": "add", "album": aid, "name": name, "requested": r["requested"], "in_album": r["in_album"],
-             "missing": r["missing_after_add"], "failed": r["failed"]})
+             "missing": r["missing_after_add"], "failed": r["failed"], "ids": ids})
         summary["albums"] += 1
         summary["added"] += r["requested"] - len(r["missing_after_add"])
         summary["missing"] += len(r["missing_after_add"])
