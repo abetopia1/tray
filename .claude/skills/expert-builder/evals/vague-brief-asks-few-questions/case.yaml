@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: vague-brief-asks-few-questions
+expected_outcome: |
+  The brief names a domain and nothing else, so the response asks the few
+  questions whose answers would change the expert (at most four), numbered,
+  each with a default in brackets, in one message, and delivers no prompt
+  yet. It does not walk through every field of the brief. If the response
+  builds instead of asking, it lists every assumption it applied in the
+  notes under the code block.
