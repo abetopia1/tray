@@ -73,8 +73,9 @@ model runs.
 cd .claude/skills/expert-builder && claude plugin eval .
 ```
 
-Both cases were run once by hand with a fresh agent when the skill was
-written. The RMS output is kept as `references/example.md`.
+Both cases were run once by hand on 2026-11-03 with a fresh agent that saw
+only the skill text. Both passed their graders. The two replies are kept
+verbatim in `references/example.md`.
 
 ## Files
 
@@ -82,5 +83,5 @@ written. The RMS output is kept as `references/example.md`.
 |---|---|
 | `SKILL.md` | the meta prompt, with frontmatter for Claude Code and Hermes |
 | `README.md` | this file |
-| `references/example.md` | one brief and the expert it produced |
+| `references/example.md` | the two test briefs and the replies they produced |
 | `evals/*/` | the two test cases: `prompt.md`, `case.yaml`, `graders/` |
