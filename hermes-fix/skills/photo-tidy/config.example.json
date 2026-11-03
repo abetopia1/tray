@@ -1,0 +1,79 @@
+{
+  "source": {
+    "mode": "photos",
+    "photos_library": "",
+    "folder": "~/Pictures/Phone Import",
+    "include_videos": true,
+    "include_hidden": false,
+    "include_shared": false
+  },
+  "run_root": "~/.hermes/workspaces/photo-tidy/runs",
+  "thumb_px": 256,
+  "workers": 6,
+  "events": {
+    "gap_hours": 8,
+    "location_jump_km": 60,
+    "min_event_photos": 3,
+    "small_event_bucket": "month"
+  },
+  "junk": {
+    "screenshots": true,
+    "screenshot_min_age_days": 30,
+    "screen_recordings": true,
+    "labels": ["document", "receipt", "whiteboard", "qr code", "barcode", "business card", "text document", "invoice"],
+    "min_px": 400,
+    "min_bytes": 40000,
+    "blur_threshold": 18.0,
+    "blur_percentile": 5,
+    "blur_cap": 100.0,
+    "dark_mean": 22,
+    "bright_mean": 236,
+    "flat_std": 14,
+    "failure_score": 0.85,
+    "burst_extras": true
+  },
+  "duplicates": {
+    "phash_max_distance": 8,
+    "dhash_max_distance": 12,
+    "time_window_hours": 48,
+    "neighbor_window": 60,
+    "use_photos_fingerprint": true
+  },
+  "places": {"use_photos_places": true, "offline_geocoder": true},
+  "naming": {
+    "enabled": true,
+    "ollama_url": "http://127.0.0.1:11434",
+    "model": "qwen3.5:4b",
+    "timeout_seconds": 90,
+    "max_events": 1500,
+    "home_label": "Home"
+  },
+  "embeddings": {
+    "enabled": false,
+    "model": "embeddinggemma-2",
+    "min_cosine": 0.965,
+    "candidate_phash_distance": 18,
+    "timeout_seconds": 60
+  },
+  "apply": {
+    "photos_folder": "Hermes Tidy",
+    "events_folder": "Events",
+    "junk_album": "Review - Junk",
+    "dup_album": "Review - Duplicates",
+    "export_dir": "",
+    "batch_size": 150
+  },
+  "review": {"host": "127.0.0.1", "port": 8765},
+  "watch": {"min_new": 1, "compare_prior_runs": 3},
+  "searches": [
+    {"q": "sharm honeymoon", "min_events": 1},
+    {"q": "iceland", "min_events": 1},
+    {"q": "wedding", "min_events": 1},
+    {"q": "eid", "min_events": 1},
+    {"q": "tundra", "min_events": 1},
+    {"q": "cairo 2026", "min_events": 1},
+    {"q": "colorado", "min_events": 1},
+    {"q": "receipt", "min_events": 0},
+    {"q": "dalia", "min_events": 1}
+  ]
+}

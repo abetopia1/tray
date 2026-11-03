@@ -31,3 +31,7 @@ next-env.d.ts
 __pycache__/
 *.pyc
 paste_out/
+
+# hermes skills: per-machine files
+hermes-fix/skills/*/config.json
+hermes-fix/skills/*/.venv/

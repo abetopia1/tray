@@ -21,6 +21,7 @@ RESTART=1
 DO_SKILL=1
 DO_SOUL=1
 OAUTH=0
+NEEDS_SETUP=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -197,7 +198,14 @@ if [ "$DO_SKILL" -eq 1 ]; then
       cp "$SKILL_SRC/config.example.json" "$SKILL_DEST/config.example.json"
       [ -f "$SKILL_DEST/config.json" ] || cp "$SKILL_SRC/config.example.json" "$SKILL_DEST/config.json"
     fi
+    if [ -f "$SKILL_SRC/setup.sh" ]; then
+      cp "$SKILL_SRC/setup.sh" "$SKILL_DEST/setup.sh"
+      [ -x "$SKILL_DEST/.venv/bin/python3" ] || NEEDS_SETUP="$NEEDS_SETUP $SKILL_DEST"
+    fi
     echo "== skill installed: $SKILL_DEST (config.json kept if it already existed)"
+  done
+  for d in $NEEDS_SETUP; do
+    echo "   note: $d needs its libraries once:  sh $d/setup.sh"
   done
   if [ "$DRY_RUN" -eq 0 ]; then
     if ! grep -q '^SMARTSHEET_ACCESS_TOKEN=' "$ENV_FILE" 2>/dev/null; then
@@ -235,5 +243,7 @@ Done. Verify in this order:
      and send me the report it writes.
   5. For the full morning brief (cos-daily-brief skill, one collector + one writing step) and the
      cron swap, see README.md, "The daily brief, rebuilt".
+  6. For the photo library (photo-tidy skill): sh $SKILLS_DEST/photo-tidy/setup.sh, then the probe
+     and trial scan it prints. See README.md, "Photo tidy".
 Rollback at any time:  HERMES_HOME="$HERMES_HOME" sh $PKG_DIR/rollback.sh   (restores the pre-fix backup)
 MSG
