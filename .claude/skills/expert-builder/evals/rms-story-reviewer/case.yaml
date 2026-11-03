@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: rms-story-reviewer
+expected_outcome: |
+  One fenced code block holding a system prompt framed in lowercase XML tags
+  (role, goal_and_success, scope, method, accuracy_and_sources, output_format
+  with a filled example of the verdict and findings, self_check), followed by
+  three to five lines of notes that list the assumptions applied. No framing
+  questions, because the brief says to build without them. No scripted chain
+  of thought, no "show your reasoning", no "hide your reasoning". The prompt
+  tells the expert to label claims as confirmed, reported, inferred or
+  unknown, and to list open questions instead of inventing behavior.
