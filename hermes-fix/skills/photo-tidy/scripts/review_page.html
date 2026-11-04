@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Tidy Review</title>
+<style>
+:root { --bg:#f6f6f3; --fg:#1d1d1b; --muted:#6b6b66; --card:#fff; --line:#dcdcd6; --ok:#1e7f4f; --warn:#b4541b; --accent:#2a5bd7; --sel:#e6f0ff; }
+@media (prefers-color-scheme: dark) { :root { --bg:#161614; --fg:#ededea; --muted:#a2a29c; --card:#222220; --line:#3a3a36; --sel:#1f2e4d; } }
+* { box-sizing:border-box; }
+body { margin:0; font:15px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:var(--fg); }
+header { position:sticky; top:0; z-index:5; background:var(--card); border-bottom:1px solid var(--line); padding:10px 16px; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; }
+header h1 { font-size:17px; margin:0 12px 0 0; }
+nav button { font:inherit; padding:6px 12px; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:8px; cursor:pointer; }
+nav button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+#save { color:var(--muted); font-size:13px; margin-left:auto; }
+main { padding:12px 16px 80px; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0 12px; }
+.bar button, .bar select, .bar input[type=text] { font:inherit; padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); }
+.bar button:hover { border-color:var(--accent); }
+.chip { padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); cursor:pointer; font-size:13px; }
+.chip.on { background:var(--sel); border-color:var(--accent); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+.card { background:var(--card); border:2px solid var(--line); border-radius:10px; padding:6px; cursor:pointer; position:relative; }
+.card.on { border-color:var(--ok); background:var(--sel); }
+.card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; background:#999; display:block; }
+.card .t { font-size:12px; color:var(--muted); margin-top:4px; word-break:break-all; }
+.card .r { font-size:12px; margin-top:2px; }
+.card .mark { position:absolute; top:10px; left:10px; background:var(--ok); color:#fff; border-radius:999px; width:22px; height:22px; display:none; text-align:center; line-height:22px; font-size:14px; }
+.card.on .mark { display:block; }
+.group { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:12px; }
+.group .head { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin-bottom:8px; }
+.group .head b { font-size:15px; }
+.strip { display:flex; flex-wrap:wrap; gap:8px; }
+.strip .card { width:130px; }
+.keep { border-color:var(--accent) !important; }
+.keep::after { content:"keep"; position:absolute; right:8px; top:8px; background:var(--accent); color:#fff; font-size:11px; padding:1px 6px; border-radius:6px; }
+.muted { color:var(--muted); }
+table { border-collapse:collapse; width:100%; background:var(--card); }
+th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+td input[type=text] { width:100%; font:inherit; padding:5px 8px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); }
+.pill { font-size:11px; padding:1px 6px; border-radius:6px; background:var(--line); }
+.big { font-size:16px; padding:10px 18px; background:var(--ok); color:#fff; border:none; border-radius:10px; cursor:pointer; }
+.big.warn { background:var(--warn); }
+pre { background:var(--card); border:1px solid var(--line); padding:10px; border-radius:8px; overflow:auto; }
+.pager { display:flex; gap:8px; align-items:center; margin:12px 0; }
+.ex { opacity:.5; }
+footer { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--line); padding:8px 16px; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Photo Tidy</h1>
+  <nav>
+    <button data-tab="junk">1 Junk</button>
+    <button data-tab="dups">2 Duplicates</button>
+    <button data-tab="groups">3 Groups</button>
+    <button data-tab="names">4 Names</button>
+    <button data-tab="approve">Approve</button>
+  </nav>
+  <span id="save">loading</span>
+</header>
+<main id="main"></main>
+<footer id="foot">Nothing moves until you approve the plan on the last tab, and nothing is ever deleted. Junk and duplicates go to review albums or folders.</footer>
+<script>
+(function () {
+  const S = { plan: null, inv: null, dec: null, tab: 'junk', page: { junk: 0, dups: 0, groups: 0 }, filter: { reason: '', conf: '', kind: '' }, dirty: false, timer: null };
+  const $ = (s, el) => (el || document).querySelector(s);
+  const h = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const PAGE = 150;
+
+  async function load() {
+    const [p, i, d] = await Promise.all([fetch('api/plan').then(r => r.json()), fetch('api/inventory').then(r => r.json()), fetch('api/decisions').then(r => r.json())]);
+    S.plan = p; S.inv = i; S.dec = d;
+    S.dec.junk = S.dec.junk || {}; S.dec.dups = S.dec.dups || {}; S.dec.events = S.dec.events || {}; S.dec.keep = S.dec.keep || {};
+    for (const e of p.events) S.dec.events[e.eid] = S.dec.events[e.eid] || {};
+    $('#save').textContent = S.dec.approved_at ? 'approved ' + S.dec.approved_at : 'saved';
+    render();
+  }
+  function save() {
+    S.dirty = true;
+    $('#save').textContent = 'unsaved';
+    clearTimeout(S.timer);
+    S.timer = setTimeout(async () => {
+      S.dec.updated_at = new Date().toISOString();
+      const r = await fetch('api/decisions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(S.dec) });
+      const j = await r.json();
+      S.dirty = false;
+      $('#save').textContent = j.ok ? 'saved ' + new Date().toLocaleTimeString() + (S.dec.approved_at ? ' (approval withdrawn, approve again on the last tab)' : '') : 'SAVE FAILED: ' + j.error;
+    }, 600);
+  }
+  function touch() { if (S.dec.approved_at) { S.dec.approved_at = null; S.dec.plan_hash = null; } save(); }
+
+  const item = (id) => S.inv[id] || (S.plan.prior_refs && S.plan.prior_refs[id]) || { name: id, thumb: null };
+  const thumb = (it) => it.thumb ? 'thumbs/' + encodeURIComponent(it.thumb) : 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#888"/><text x="50" y="55" font-size="12" text-anchor="middle" fill="#fff">no preview</text></svg>');
+  const when = (it) => it.date ? it.date.slice(0, 16).replace('T', ' ') : 'undated';
+  function card(id, extra, on, cls) {
+    const it = item(id);
+    return `<div class="card ${on ? 'on' : ''} ${cls || ''}" data-id="${h(id)}"><span class="mark">&#10003;</span><img loading="lazy" src="${thumb(it)}" alt=""><div class="t">${h(it.name)}<br>${h(when(it))}${it.kind === 'video' ? ' video' : ''}${it.favorite ? ' &#9829;' : ''}</div>${extra || ''}</div>`;
+  }
+  function pager(key, total, onChange) {
+    const pages = Math.max(1, Math.ceil(total / PAGE));
+    if (S.page[key] >= pages) S.page[key] = pages - 1;
+    const p = S.page[key];
+    return `<div class="pager"><button data-pg="-1">Prev</button><span>page ${p + 1} of ${pages} (${total} shown)</span><button data-pg="1">Next</button></div>`;
+  }
+  function bindPager(root, key, total) {
+    root.querySelectorAll('[data-pg]').forEach(b => b.onclick = () => { const pages = Math.max(1, Math.ceil(total / PAGE)); S.page[key] = Math.min(pages - 1, Math.max(0, S.page[key] + Number(b.dataset.pg))); render(); window.scrollTo(0, 0); });
+  }
+
+  // ---------------------------------------------------------------- 1 junk
+  function renderJunk(m) {
+    const J = S.plan.junk;
+    const reasons = {};
+    J.forEach(j => j.reasons.forEach(r => { const k = r.split(/[:\s]/)[0]; reasons[k] = (reasons[k] || 0) + 1; }));
+    let shown = J.filter(j => (!S.filter.reason || j.reasons.some(r => r.startsWith(S.filter.reason))) && (!S.filter.conf || j.confidence === S.filter.conf));
+    const approved = Object.values(S.dec.junk).filter(Boolean).length;
+    const start = S.page.junk * PAGE;
+    const slice = shown.slice(start, start + PAGE);
+    m.innerHTML = `<p>${J.length} junk candidates, ${approved} approved. Click a photo to approve moving it to the review album or folder. Nothing is deleted.</p>
+      <div class="bar"><span class="muted">reason:</span><span class="chip ${S.filter.reason ? '' : 'on'}" data-reason="">all</span>${Object.entries(reasons).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span class="chip ${S.filter.reason === k ? 'on' : ''}" data-reason="${h(k)}">${h(k)} ${v}</span>`).join('')}
+      <span class="muted">confidence:</span><select id="conf"><option value="">any</option><option value="high" ${S.filter.conf === 'high' ? 'selected' : ''}>high</option><option value="medium" ${S.filter.conf === 'medium' ? 'selected' : ''}>medium</option></select>
+      <button id="appShown">Approve all ${shown.length} shown</button><button id="clrShown">Clear all shown</button></div>
+      ${pager('junk', shown.length)}<div class="grid">${slice.map(j => card(j.id, `<div class="r">${h(j.reasons.join(', '))} <span class="pill">${j.confidence}</span></div>`, !!S.dec.junk[j.id])).join('')}</div>${pager('junk', shown.length)}`;
+    m.querySelectorAll('[data-reason]').forEach(c => c.onclick = () => { S.filter.reason = c.dataset.reason; S.page.junk = 0; render(); });
+    $('#conf', m).onchange = (e) => { S.filter.conf = e.target.value; S.page.junk = 0; render(); };
+    $('#appShown', m).onclick = () => { shown.forEach(j => S.dec.junk[j.id] = true); touch(); render(); };
+    $('#clrShown', m).onclick = () => { shown.forEach(j => delete S.dec.junk[j.id]); touch(); render(); };
+    m.querySelectorAll('.card').forEach(c => c.onclick = () => { const id = c.dataset.id; if (S.dec.junk[id]) delete S.dec.junk[id]; else S.dec.junk[id] = true; c.classList.toggle('on', !!S.dec.junk[id]); touch(); });
+    bindPager(m, 'junk', shown.length);
+  }
+
+  // ---------------------------------------------------------------- 2 duplicates
+  function renderDups(m) {
+    const G = S.plan.dups;
+    let shown = G.filter(g => !S.filter.kind || g.kind === S.filter.kind);
+    const approved = G.filter(g => S.dec.dups[g.gid]).length;
+    const start = S.page.dups * PAGE;
+    const slice = shown.slice(start, start + PAGE);
+    m.innerHTML = `<p>${G.length} duplicate groups, ${approved} approved. The keeper stays where it is; the others go to the review album or folder when you approve the group. Click a photo to make it the keeper instead.</p>
+      <div class="bar"><span class="chip ${S.filter.kind ? '' : 'on'}" data-kind="">all</span><span class="chip ${S.filter.kind === 'exact' ? 'on' : ''}" data-kind="exact">exact ${G.filter(g => g.kind === 'exact').length}</span><span class="chip ${S.filter.kind === 'near' ? 'on' : ''}" data-kind="near">near ${G.filter(g => g.kind === 'near').length}</span>
+      <button id="appShown">Approve all ${shown.length} shown</button><button id="clrShown">Clear all shown</button></div>
+      ${pager('dups', shown.length)}${slice.map(g => {
+        const keep = S.dec.keep[g.gid] || g.keep;
+        const members = [g.keep, ...g.others];
+        return `<div class="group" data-gid="${h(g.gid)}"><div class="head"><label><input type="checkbox" class="appr" ${S.dec.dups[g.gid] ? 'checked' : ''}> <b>approve</b></label><span>${h(g.gid)}</span><span class="pill">${g.kind}${g.kind === 'near' ? ' d=' + g.distance : ''}</span><span class="muted">${members.length} photos${g.prior_keep ? ', keeper is from an earlier run' : ''}</span></div>
+          <div class="strip">${members.map(id => card(id, '', false, id === keep ? 'keep' : '')).join('')}</div></div>`;
+      }).join('')}${pager('dups', shown.length)}`;
+    m.querySelectorAll('[data-kind]').forEach(c => c.onclick = () => { S.filter.kind = c.dataset.kind; S.page.dups = 0; render(); });
+    $('#appShown', m).onclick = () => { shown.forEach(g => S.dec.dups[g.gid] = true); touch(); render(); };
+    $('#clrShown', m).onclick = () => { shown.forEach(g => delete S.dec.dups[g.gid]); touch(); render(); };
+    m.querySelectorAll('.group').forEach(gEl => {
+      const gid = gEl.dataset.gid;
+      $('.appr', gEl).onchange = (e) => { if (e.target.checked) S.dec.dups[gid] = true; else delete S.dec.dups[gid]; touch(); };
+      gEl.querySelectorAll('.card').forEach(c => c.onclick = () => { S.dec.keep[gid] = c.dataset.id; touch(); render(); });
+    });
+    bindPager(m, 'dups', shown.length);
+  }
+
+  // ---------------------------------------------------------------- 3 groups
+  function evName(e) { const d = S.dec.events[e.eid] || {}; return d.name || e.name; }
+  function renderGroups(m) {
+    const E = S.plan.events;
+    const start = S.page.groups * PAGE;
+    const slice = E.slice(start, start + PAGE);
+    m.innerHTML = `<p>${S.plan.counts.events} events and ${S.plan.counts.buckets} monthly buckets. Each becomes an album (Photos mode) or a folder (folder mode). Exclude an event to leave its photos untouched, or merge it into the one above it.</p>
+      ${pager('groups', E.length)}${slice.map((e, i) => {
+        const d = S.dec.events[e.eid] || {};
+        const idx = start + i;
+        const prev = idx > 0 ? E[idx - 1] : null;
+        const strip = e.ids.slice(0, 10);
+        return `<div class="group ${d.include === false ? 'ex' : ''}" data-eid="${h(e.eid)}"><div class="head"><b>${h((e.start || '').slice(0, 10))} ${h(evName(e))}</b>${d.merge_prev ? '<span class="pill">merged into previous</span>' : ''}${e.bucket ? '<span class="pill">bucket</span>' : ''}<span class="muted">${e.n} items${e.n_videos ? ', ' + e.n_videos + ' videos' : ''} | ${h([e.place.city, e.place.country].filter(Boolean).join(', ') || 'no place')} | ${h((e.start || '').slice(11, 16))} to ${h((e.end || '').slice(0, 16).replace('T', ' '))}</span>
+          <span class="muted">${h(e.labels_top.slice(0, 5).join(', '))}${e.persons_top.length ? ' | people: ' + h(e.persons_top.join(', ')) : ''}</span>
+          <button class="ex-btn">${d.include === false ? 'Include' : 'Exclude'}</button>${prev && !e.bucket ? `<button class="mg-btn">${d.merge_prev ? 'Unmerge' : 'Merge into previous'}</button>` : ''}</div>
+          <div class="strip">${strip.map(id => card(id, '', false)).join('')}${e.ids.length > 10 ? `<div class="muted" style="align-self:center">+${e.ids.length - 10} more</div>` : ''}</div></div>`;
+      }).join('')}${pager('groups', E.length)}`;
+    m.querySelectorAll('.group').forEach(gEl => {
+      const eid = gEl.dataset.eid;
+      const d = S.dec.events[eid] = S.dec.events[eid] || {};
+      $('.ex-btn', gEl).onclick = () => { d.include = d.include === false ? true : false; touch(); render(); };
+      const mg = $('.mg-btn', gEl); if (mg) mg.onclick = () => { d.merge_prev = !d.merge_prev; touch(); render(); };
+    });
+    bindPager(m, 'groups', E.length);
+  }
+
+  // ---------------------------------------------------------------- 4 names
+  function renderNames(m) {
+    const E = S.plan.events.filter(e => !e.bucket);
+    const srcs = {};
+    E.forEach(e => srcs[e.name_src] = (srcs[e.name_src] || 0) + 1);
+    m.innerHTML = `<p>${E.length} event names. Sources: ${h(Object.entries(srcs).map(([k, v]) => k + ' ' + v).join(', '))}. Edit any name; the date stays as the prefix of the album or folder name.</p>
+      <table><tr><th>Date</th><th>Place</th><th>Items</th><th>Name</th><th>Source</th><th></th></tr>${E.map(e => {
+        const d = S.dec.events[e.eid] || {};
+        return `<tr data-eid="${h(e.eid)}" class="${d.include === false || d.merge_prev ? 'ex' : ''}"><td>${h((e.start || '').slice(0, 10))}</td><td>${h([e.place.city, e.place.country].filter(Boolean).join(', '))}</td><td>${e.n}</td><td><input type="text" value="${h(evName(e))}" placeholder="${h(e.name_rule || '')}"></td><td><span class="pill">${h(d.name ? 'you' : e.name_src)}</span></td><td><button class="rs">reset</button></td></tr>`;
+      }).join('')}</table>`;
+    m.querySelectorAll('tr[data-eid]').forEach(tr => {
+      const eid = tr.dataset.eid;
+      const e = S.plan.events.find(x => x.eid === eid);
+      const inp = $('input', tr);
+      inp.onchange = () => { const v = inp.value.trim(); const d = S.dec.events[eid] = S.dec.events[eid] || {}; if (v && v !== e.name) d.name = v; else delete d.name; touch(); };
+      $('.rs', tr).onclick = () => { const d = S.dec.events[eid] || {}; delete d.name; inp.value = e.name; touch(); };
+    });
+  }
+
+  // ---------------------------------------------------------------- approve
+  function renderApprove(m) {
+    const nj = Object.values(S.dec.junk).filter(Boolean).length;
+    const ng = S.plan.dups.filter(g => S.dec.dups[g.gid]);
+    const np = ng.reduce((a, g) => a + g.others.length, 0);
+    const ex = S.plan.events.filter(e => (S.dec.events[e.eid] || {}).include === false).length;
+    const mg = S.plan.events.filter(e => (S.dec.events[e.eid] || {}).merge_prev).length;
+    const rn = S.plan.events.filter(e => (S.dec.events[e.eid] || {}).name).length;
+    m.innerHTML = `<h2>What will happen when you approve</h2>
+      <ul><li><b>${nj}</b> junk candidates move to the junk review album or folder.</li>
+      <li><b>${np}</b> photos from <b>${ng.length}</b> duplicate groups move to the duplicates review album or folder; keepers stay.</li>
+      <li><b>${S.plan.events.length - ex - mg}</b> events become albums or folders (${ex} excluded, ${mg} merged, ${rn} renamed by you).</li>
+      <li>Nothing is deleted. Every change is logged and can be undone with pt_undo.py.</li></ul>
+      <p>${S.dec.approved_at ? `<b>Approved at ${h(S.dec.approved_at)}.</b> Changing anything above withdraws the approval.` : 'Not approved yet.'}</p>
+      <p><button class="big" id="approve">${S.dec.approved_at ? 'Approve again' : 'Approve this plan'}</button> ${S.dec.approved_at ? '<button class="big warn" id="withdraw">Withdraw approval</button>' : ''}</p>
+      <p class="muted">Then tell Hermes "apply the photo plan", or run from Terminal:</p><pre>${h(S.plan.apply_command || '')}</pre>`;
+    $('#approve', m).onclick = async () => {
+      if (S.dirty) { await new Promise(r => setTimeout(r, 900)); }
+      const r = await fetch('api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(S.dec) });
+      const j = await r.json();
+      if (j.ok) { S.dec.approved_at = j.approved_at; S.dec.plan_hash = j.plan_hash; $('#save').textContent = 'approved ' + j.approved_at; } else alert('Approval failed: ' + j.error);
+      render();
+    };
+    const w = $('#withdraw', m); if (w) w.onclick = () => { S.dec.approved_at = null; S.dec.plan_hash = null; save(); render(); };
+  }
+
+  function render() {
+    document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
+    const m = $('#main');
+    ({ junk: renderJunk, dups: renderDups, groups: renderGroups, names: renderNames, approve: renderApprove })[S.tab](m);
+  }
+  document.querySelectorAll('nav button').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; render(); window.scrollTo(0, 0); });
+  load().catch(err => { $('#main').innerHTML = '<pre>' + h(err) + '</pre>'; });
+})();
+</script>
+</body>
+</html>

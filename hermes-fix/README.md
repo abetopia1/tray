@@ -146,6 +146,74 @@ optional; pin its id if the ledger says several sheets match), the EventKit
 interpreter path, and the cua-driver path for the screenshots. The ledger
 names whichever one is wrong.
 
+## Photo tidy
+
+The iPhone's photos, organised from the Mac. iCloud Photos keeps the Mac's
+Photos library equal to the phone's, so the Mac is where the work happens
+and the phone sees the result as albums. `skills/photo-tidy/` is the
+pipeline; Hermes drives it from chat.
+
+| Step | Script | What it does | Hermes calls |
+|---|---|---|---|
+| scan | `pt_scan.py` | reads the Photos library through osxphotos (a copy of its database, never the live one): date, GPS, Apple's place names, image labels, people, quality scores, burst and screenshot flags, Photos' own duplicate fingerprint. Writes a 256 px thumbnail per item and perceptual hashes. 29k items take 10 to 30 minutes on an Apple Silicon Mac. | 1 start + polls |
+| plan | `pt_plan.py` | junk candidates with a reason each (screenshot older than 30 days, document or receipt label, tiny, near-black, near-white, blurry by a run-relative cutoff, Photos failure score, burst extras); duplicate groups, exact by fingerprint or bytes plus hash, near by perceptual hash within 48 hours or anywhere via a band index, with a keeper chosen by favourite, burst pick, GPS, size, original-looking name, earliest import; events split at 8 hour gaps or 60 km jumps, with events under 3 photos folded into a monthly bucket; a place per event from Apple's names, else offline GeoNames; a name per event from a local Qwen model through Ollama, with a rule name when Ollama is off. | 1 start + polls |
+| review | `pt_review.py` | a local page, four tabs in order: junk, duplicates, groups, names, then Approve. Every click saves `decisions.json`. Approve stamps it with the plan's hash. Reachable from the iPhone over Tailscale with `--host 0.0.0.0`. | 1 |
+| apply | `pt_apply.py` | refuses without the approval stamp. Photos mode: a folder "Hermes Tidy" with one album per event under "Events", plus "Review - Junk <date>" and "Review - Duplicates <date>". Items are added by AppleScript in batches; a failing batch is bisected so one missing photo cannot stop a run. Optional `--export DIR` copies approved events into year and event folders, checksum verified, for Immich later. Folder mode moves files instead. Every action is appended to `apply.log.jsonl` as it happens. | 1 dry run + 1 start + polls |
+| undo | `pt_undo.py` | reverse of the log: albums the run made are deleted (an album deletion never deletes a photo), moved files go back, export copies are removed only while their checksum still matches the original. | 1 or 2 |
+| watch | `pt_watch.py` | items no run has seen; scans and plans only those, matching duplicates against earlier runs. A nightly cron job. | 1 start + polls |
+| search | `pt_search.py` | Abe's real searches (config.json `searches`) against a run, once with only what Photos knew and once with the plan's names and places, so the gain is measurable. | 2 |
+
+A plan leaves out items an earlier apply already placed, so a trial on
+part of the library and a full run later do not make the same albums
+twice; `--include-applied` overrides that. Originals that iCloud keeps
+off the Mac (Optimise Mac Storage) still scan, hash and sort through
+Photos' own derivative images, and only the export step skips them.
+
+Nothing in the skill deletes a photo. The review albums put junk and
+duplicates in front of Abe on the phone; deleting from them is his thumb
+on his phone, with the 30 day Recently Deleted safety net, and the tool
+never does it. The pipeline is local: osxphotos and the hashes run on the
+Mac, Ollama runs on the Mac, and the review page binds to localhost unless
+told otherwise. The model sees only metadata text per event (dates, place,
+labels, people, counts), never pixels. Thumbnails exist for the review
+page alone, and the skill forbids Hermes from reading them.
+
+Install, on the Mac:
+
+```sh
+cd ~/Downloads/tray-hermes-fix && git pull
+mkdir -p ~/.hermes/skills && cp -R hermes-fix/skills/photo-tidy ~/.hermes/skills/
+sh ~/.hermes/skills/photo-tidy/setup.sh --ollama
+python3 ~/.hermes/skills/photo-tidy/scripts/pt_photos.py --library-info
+python3 ~/.hermes/skills/photo-tidy/scripts/pt_photos.py --probe
+python3 ~/.hermes/skills/photo-tidy/scripts/pt_scan.py --limit 300
+```
+
+The copy installs only this skill. `apply.sh --tier fast` installs it too but
+also switches the main model to the fast tier, so use it only when that is
+wanted. `setup.sh` makes the venv with osxphotos, Pillow, ImageHash and
+GeoNames and, with `--ollama`, pulls the naming model (`brew install ollama`
+and `brew services start ollama` first). The probe is run from Terminal so
+Terminal is the app that gets the Photos automation permission. No comments
+on those lines on purpose: zsh passes a pasted `# comment` to the command.
+
+Then in chat: "tidy my photos", review, approve, "apply the photo plan".
+Settings live in `~/.hermes/skills/photo-tidy/config.json`; the ones
+worth a look are `events.gap_hours`, `junk.screenshot_min_age_days`,
+`naming.model` (set it to a tag that `ollama list` shows) and
+`embeddings.enabled`. The embedding stage uses EmbeddingGemma 2 through
+Ollama's `/api/embed` with image input to drop weak near-duplicate
+matches; it is off by default because image embeddings landed in Ollama
+in October 2026 on the MLX runner and the plan probes the endpoint before
+relying on it. Perceptual hashes do the main work either way.
+
+The whole folder pipeline is tested end to end on synthetic photos with
+EXIF dates and GPS (`skills/photo-tidy/tests/run_tests.sh`): scan, plan,
+review API, approve, apply with export, refuse a second apply, undo to a
+byte-identical folder, search, watch. The Photos adapter (osxphotos read,
+AppleScript write) cannot run outside macOS; `pt_photos.py --probe`
+exercises it on the Mac in a few seconds.
+
 ## Install
 
 On the Mac, in Terminal:
@@ -240,6 +308,7 @@ place.
 | `rules/SOUL-efficiency.md` | operating rules appended to SOUL.md |
 | `skills/fuzzys-cos-brief/` | SKILL.md, config.example.json, scripts/tracker_brief.py |
 | `skills/cos-daily-brief/` | SKILL.md, config.example.json, scripts/cos_collect.py, cos_check.py, calendar_read.py |
+| `skills/photo-tidy/` | SKILL.md, config.example.json, setup.sh, scripts/pt_scan.py, pt_plan.py, pt_review.py, review_page.html, pt_apply.py, pt_undo.py, pt_watch.py, pt_search.py, pt_photos.py, pt_common.py, tests/ |
 | `diagnose/collect.sh` | read-only diagnostic bundle |
 | `diagnose/hermes_timeline.py` | per-turn timeline from `~/.hermes/state.db` |
 
