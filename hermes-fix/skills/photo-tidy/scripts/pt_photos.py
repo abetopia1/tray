@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 import time
@@ -176,10 +177,16 @@ def as_str(s):
 APPLE_EVENT_TIMEOUT = 1800   # Photos answers a big album slowly; the default Apple event timeout is 120 s (-1712)
 
 
+_TELL_OPEN = re.compile(r'^([ \t]*)tell application "Photos"[ \t]*$', re.M)
+_TELL_CLOSE = re.compile(r'^([ \t]*)end tell[ \t]*$', re.M)
+
+
 def with_timeout(script):
-    """Wrap every tell block in a long Apple event timeout."""
-    return (script.replace('tell application "Photos"\n', f'tell application "Photos"\n    with timeout of {APPLE_EVENT_TIMEOUT} seconds\n')
-                  .replace("\nend tell", "\n    end timeout\nend tell"))
+    """Wrap every multi-line tell block in a long Apple event timeout. Blocks
+    inside handlers are indented, so the inserted lines keep each block's own
+    indentation and the opener and closer always pair up."""
+    script = _TELL_OPEN.sub(lambda m: f'{m[1]}tell application "Photos"\n{m[1]}    with timeout of {APPLE_EVENT_TIMEOUT} seconds', script)
+    return _TELL_CLOSE.sub(lambda m: f'{m[1]}    end timeout\n{m[1]}end tell', script)
 
 
 def osascript(script, timeout=2400):
