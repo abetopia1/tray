@@ -1,0 +1,1847 @@
+{
+ "source": "estimate",
+ "duration": 101.154,
+ "words": [
+  {
+   "i": 0,
+   "text": "Three",
+   "beat": 1,
+   "start": 0.351,
+   "end": 0.554
+  },
+  {
+   "i": 1,
+   "text": "names,",
+   "beat": 1,
+   "start": 0.575,
+   "end": 0.919
+  },
+  {
+   "i": 2,
+   "text": "one",
+   "beat": 1,
+   "start": 1.052,
+   "end": 1.395
+  },
+  {
+   "i": 3,
+   "text": "cork",
+   "beat": 1,
+   "start": 1.416,
+   "end": 1.62
+  },
+  {
+   "i": 4,
+   "text": "board.",
+   "beat": 1,
+   "start": 1.641,
+   "end": 1.844
+  },
+  {
+   "i": 5,
+   "text": "Nvidia,",
+   "beat": 1,
+   "start": 2.09,
+   "end": 2.433
+  },
+  {
+   "i": 6,
+   "text": "the",
+   "beat": 1,
+   "start": 2.566,
+   "end": 2.77
+  },
+  {
+   "i": 7,
+   "text": "most",
+   "beat": 1,
+   "start": 2.791,
+   "end": 2.994
+  },
+  {
+   "i": 8,
+   "text": "valuable",
+   "beat": 1,
+   "start": 3.015,
+   "end": 3.499
+  },
+  {
+   "i": 9,
+   "text": "company",
+   "beat": 1,
+   "start": 3.52,
+   "end": 4.004
+  },
+  {
+   "i": 10,
+   "text": "in",
+   "beat": 1,
+   "start": 4.025,
+   "end": 4.228
+  },
+  {
+   "i": 11,
+   "text": "the",
+   "beat": 1,
+   "start": 4.249,
+   "end": 4.453
+  },
+  {
+   "i": 12,
+   "text": "world.",
+   "beat": 1,
+   "start": 4.474,
+   "end": 4.677
+  },
+  {
+   "i": 13,
+   "text": "Megaspeed,",
+   "beat": 1,
+   "start": 4.923,
+   "end": 5.406
+  },
+  {
+   "i": 14,
+   "text": "a",
+   "beat": 1,
+   "start": 5.54,
+   "end": 5.743
+  },
+  {
+   "i": 15,
+   "text": "chip",
+   "beat": 1,
+   "start": 5.764,
+   "end": 5.967
+  },
+  {
+   "i": 16,
+   "text": "buyer",
+   "beat": 1,
+   "start": 5.988,
+   "end": 6.192
+  },
+  {
+   "i": 17,
+   "text": "few",
+   "beat": 1,
+   "start": 6.213,
+   "end": 6.416
+  },
+  {
+   "i": 18,
+   "text": "had",
+   "beat": 1,
+   "start": 6.437,
+   "end": 6.641
+  },
+  {
+   "i": 19,
+   "text": "heard",
+   "beat": 1,
+   "start": 6.662,
+   "end": 6.865
+  },
+  {
+   "i": 20,
+   "text": "of.",
+   "beat": 1,
+   "start": 6.886,
+   "end": 7.089
+  },
+  {
+   "i": 21,
+   "text": "And",
+   "beat": 1,
+   "start": 7.335,
+   "end": 7.538
+  },
+  {
+   "i": 22,
+   "text": "a",
+   "beat": 1,
+   "start": 7.559,
+   "end": 7.763
+  },
+  {
+   "i": 23,
+   "text": "businesswoman",
+   "beat": 1,
+   "start": 7.784,
+   "end": 8.548
+  },
+  {
+   "i": 24,
+   "text": "named",
+   "beat": 1,
+   "start": 8.569,
+   "end": 8.913
+  },
+  {
+   "i": 25,
+   "text": "Alice",
+   "beat": 1,
+   "start": 8.934,
+   "end": 9.417
+  },
+  {
+   "i": 26,
+   "text": "Huang.",
+   "beat": 1,
+   "start": 9.438,
+   "end": 9.642
+  },
+  {
+   "i": 27,
+   "text": "Follow",
+   "beat": 1,
+   "start": 9.887,
+   "end": 10.231
+  },
+  {
+   "i": 28,
+   "text": "the",
+   "beat": 1,
+   "start": 10.252,
+   "end": 10.455
+  },
+  {
+   "i": 29,
+   "text": "string.",
+   "beat": 1,
+   "start": 10.476,
+   "end": 10.68
+  },
+  {
+   "i": 30,
+   "text": "October",
+   "beat": 2,
+   "start": 11.241,
+   "end": 11.724
+  },
+  {
+   "i": 31,
+   "text": "2022.",
+   "beat": 2,
+   "start": 11.745,
+   "end": 12.37
+  },
+  {
+   "i": 32,
+   "text": "Washington",
+   "beat": 2,
+   "start": 12.615,
+   "end": 13.099
+  },
+  {
+   "i": 33,
+   "text": "bars",
+   "beat": 2,
+   "start": 13.12,
+   "end": 13.323
+  },
+  {
+   "i": 34,
+   "text": "sales",
+   "beat": 2,
+   "start": 13.344,
+   "end": 13.688
+  },
+  {
+   "i": 35,
+   "text": "of",
+   "beat": 2,
+   "start": 13.709,
+   "end": 13.912
+  },
+  {
+   "i": 36,
+   "text": "the",
+   "beat": 2,
+   "start": 13.933,
+   "end": 14.137
+  },
+  {
+   "i": 37,
+   "text": "most",
+   "beat": 2,
+   "start": 14.158,
+   "end": 14.361
+  },
+  {
+   "i": 38,
+   "text": "advanced",
+   "beat": 2,
+   "start": 14.382,
+   "end": 14.866
+  },
+  {
+   "i": 39,
+   "text": "AI",
+   "beat": 2,
+   "start": 14.887,
+   "end": 15.09
+  },
+  {
+   "i": 40,
+   "text": "chips",
+   "beat": 2,
+   "start": 15.111,
+   "end": 15.315
+  },
+  {
+   "i": 41,
+   "text": "to",
+   "beat": 2,
+   "start": 15.336,
+   "end": 15.539
+  },
+  {
+   "i": 42,
+   "text": "China.",
+   "beat": 2,
+   "start": 15.56,
+   "end": 15.904
+  },
+  {
+   "i": 43,
+   "text": "2023.",
+   "beat": 3,
+   "start": 16.465,
+   "end": 17.089
+  },
+  {
+   "i": 44,
+   "text": "A",
+   "beat": 3,
+   "start": 17.334,
+   "end": 17.538
+  },
+  {
+   "i": 45,
+   "text": "Chinese",
+   "beat": 3,
+   "start": 17.559,
+   "end": 18.042
+  },
+  {
+   "i": 46,
+   "text": "gaming",
+   "beat": 3,
+   "start": 18.063,
+   "end": 18.407
+  },
+  {
+   "i": 47,
+   "text": "company",
+   "beat": 3,
+   "start": 18.428,
+   "end": 18.912
+  },
+  {
+   "i": 48,
+   "text": "spins",
+   "beat": 3,
+   "start": 18.933,
+   "end": 19.136
+  },
+  {
+   "i": 49,
+   "text": "off",
+   "beat": 3,
+   "start": 19.157,
+   "end": 19.361
+  },
+  {
+   "i": 50,
+   "text": "its",
+   "beat": 3,
+   "start": 19.382,
+   "end": 19.585
+  },
+  {
+   "i": 51,
+   "text": "Singapore",
+   "beat": 3,
+   "start": 19.606,
+   "end": 20.23
+  },
+  {
+   "i": 52,
+   "text": "arm.",
+   "beat": 3,
+   "start": 20.251,
+   "end": 20.455
+  },
+  {
+   "i": 53,
+   "text": "It",
+   "beat": 3,
+   "start": 20.7,
+   "end": 20.903
+  },
+  {
+   "i": 54,
+   "text": "becomes",
+   "beat": 3,
+   "start": 20.924,
+   "end": 21.408
+  },
+  {
+   "i": 55,
+   "text": "Megaspeed.",
+   "beat": 3,
+   "start": 21.429,
+   "end": 21.913
+  },
+  {
+   "i": 56,
+   "text": "Alice",
+   "beat": 3,
+   "start": 22.159,
+   "end": 22.642
+  },
+  {
+   "i": 57,
+   "text": "Huang,",
+   "beat": 3,
+   "start": 22.663,
+   "end": 22.867
+  },
+  {
+   "i": 58,
+   "text": "also",
+   "beat": 3,
+   "start": 23,
+   "end": 23.344
+  },
+  {
+   "i": 59,
+   "text": "known",
+   "beat": 3,
+   "start": 23.365,
+   "end": 23.568
+  },
+  {
+   "i": 60,
+   "text": "as",
+   "beat": 3,
+   "start": 23.589,
+   "end": 23.792
+  },
+  {
+   "i": 61,
+   "text": "Huang",
+   "beat": 3,
+   "start": 23.813,
+   "end": 24.017
+  },
+  {
+   "i": 62,
+   "text": "Le,",
+   "beat": 3,
+   "start": 24.038,
+   "end": 24.241
+  },
+  {
+   "i": 63,
+   "text": "is",
+   "beat": 3,
+   "start": 24.374,
+   "end": 24.578
+  },
+  {
+   "i": 64,
+   "text": "its",
+   "beat": 3,
+   "start": 24.599,
+   "end": 24.802
+  },
+  {
+   "i": 65,
+   "text": "first",
+   "beat": 3,
+   "start": 24.823,
+   "end": 25.027
+  },
+  {
+   "i": 66,
+   "text": "managing",
+   "beat": 3,
+   "start": 25.048,
+   "end": 25.531
+  },
+  {
+   "i": 67,
+   "text": "director.",
+   "beat": 3,
+   "start": 25.552,
+   "end": 26.036
+  },
+  {
+   "i": 68,
+   "text": "Then",
+   "beat": 4,
+   "start": 26.597,
+   "end": 26.801
+  },
+  {
+   "i": 69,
+   "text": "come",
+   "beat": 4,
+   "start": 26.822,
+   "end": 27.165
+  },
+  {
+   "i": 70,
+   "text": "the",
+   "beat": 4,
+   "start": 27.186,
+   "end": 27.39
+  },
+  {
+   "i": 71,
+   "text": "orders.",
+   "beat": 4,
+   "start": 27.411,
+   "end": 27.754
+  },
+  {
+   "i": 72,
+   "text": "The",
+   "beat": 4,
+   "start": 28,
+   "end": 28.203
+  },
+  {
+   "i": 73,
+   "text": "New",
+   "beat": 4,
+   "start": 28.224,
+   "end": 28.427
+  },
+  {
+   "i": 74,
+   "text": "York",
+   "beat": 4,
+   "start": 28.449,
+   "end": 28.652
+  },
+  {
+   "i": 75,
+   "text": "Times",
+   "beat": 4,
+   "start": 28.673,
+   "end": 29.016
+  },
+  {
+   "i": 76,
+   "text": "reports",
+   "beat": 4,
+   "start": 29.038,
+   "end": 29.381
+  },
+  {
+   "i": 77,
+   "text": "Megaspeed",
+   "beat": 4,
+   "start": 29.402,
+   "end": 29.886
+  },
+  {
+   "i": 78,
+   "text": "bought",
+   "beat": 4,
+   "start": 29.907,
+   "end": 30.11
+  },
+  {
+   "i": 79,
+   "text": "more",
+   "beat": 4,
+   "start": 30.131,
+   "end": 30.475
+  },
+  {
+   "i": 80,
+   "text": "than",
+   "beat": 4,
+   "start": 30.496,
+   "end": 30.699
+  },
+  {
+   "i": 81,
+   "text": "4.8",
+   "beat": 4,
+   "start": 30.72,
+   "end": 31.064
+  },
+  {
+   "i": 82,
+   "text": "billion",
+   "beat": 4,
+   "start": 31.085,
+   "end": 31.429
+  },
+  {
+   "i": 83,
+   "text": "dollars",
+   "beat": 4,
+   "start": 31.45,
+   "end": 31.793
+  },
+  {
+   "i": 84,
+   "text": "of",
+   "beat": 4,
+   "start": 31.814,
+   "end": 32.018
+  },
+  {
+   "i": 85,
+   "text": "Nvidia",
+   "beat": 4,
+   "start": 32.039,
+   "end": 32.382
+  },
+  {
+   "i": 86,
+   "text": "chips",
+   "beat": 4,
+   "start": 32.403,
+   "end": 32.607
+  },
+  {
+   "i": 87,
+   "text": "in",
+   "beat": 4,
+   "start": 32.628,
+   "end": 32.831
+  },
+  {
+   "i": 88,
+   "text": "two",
+   "beat": 4,
+   "start": 32.852,
+   "end": 33.056
+  },
+  {
+   "i": 89,
+   "text": "years.",
+   "beat": 4,
+   "start": 33.077,
+   "end": 33.28
+  },
+  {
+   "i": 90,
+   "text": "October",
+   "beat": 5,
+   "start": 33.841,
+   "end": 34.325
+  },
+  {
+   "i": 91,
+   "text": "2025.",
+   "beat": 5,
+   "start": 34.346,
+   "end": 34.97
+  },
+  {
+   "i": 92,
+   "text": "The",
+   "beat": 5,
+   "start": 35.215,
+   "end": 35.419
+  },
+  {
+   "i": 93,
+   "text": "Times",
+   "beat": 5,
+   "start": 35.44,
+   "end": 35.783
+  },
+  {
+   "i": 94,
+   "text": "reports",
+   "beat": 5,
+   "start": 35.804,
+   "end": 36.148
+  },
+  {
+   "i": 95,
+   "text": "the",
+   "beat": 5,
+   "start": 36.169,
+   "end": 36.372
+  },
+  {
+   "i": 96,
+   "text": "Commerce",
+   "beat": 5,
+   "start": 36.393,
+   "end": 36.877
+  },
+  {
+   "i": 97,
+   "text": "Department",
+   "beat": 5,
+   "start": 36.898,
+   "end": 37.382
+  },
+  {
+   "i": 98,
+   "text": "is",
+   "beat": 5,
+   "start": 37.403,
+   "end": 37.606
+  },
+  {
+   "i": 99,
+   "text": "investigating",
+   "beat": 5,
+   "start": 37.627,
+   "end": 38.392
+  },
+  {
+   "i": 100,
+   "text": "whether",
+   "beat": 5,
+   "start": 38.413,
+   "end": 38.756
+  },
+  {
+   "i": 101,
+   "text": "Megaspeed",
+   "beat": 5,
+   "start": 38.777,
+   "end": 39.261
+  },
+  {
+   "i": 102,
+   "text": "helped",
+   "beat": 5,
+   "start": 39.282,
+   "end": 39.626
+  },
+  {
+   "i": 103,
+   "text": "Chinese",
+   "beat": 5,
+   "start": 39.647,
+   "end": 40.131
+  },
+  {
+   "i": 104,
+   "text": "firms",
+   "beat": 5,
+   "start": 40.152,
+   "end": 40.355
+  },
+  {
+   "i": 105,
+   "text": "get",
+   "beat": 5,
+   "start": 40.376,
+   "end": 40.58
+  },
+  {
+   "i": 106,
+   "text": "around",
+   "beat": 5,
+   "start": 40.601,
+   "end": 40.944
+  },
+  {
+   "i": 107,
+   "text": "the",
+   "beat": 5,
+   "start": 40.965,
+   "end": 41.169
+  },
+  {
+   "i": 108,
+   "text": "ban.",
+   "beat": 5,
+   "start": 41.19,
+   "end": 41.393
+  },
+  {
+   "i": 109,
+   "text": "Nvidia",
+   "beat": 5,
+   "start": 41.638,
+   "end": 41.982
+  },
+  {
+   "i": 110,
+   "text": "says",
+   "beat": 5,
+   "start": 42.003,
+   "end": 42.206
+  },
+  {
+   "i": 111,
+   "text": "it",
+   "beat": 5,
+   "start": 42.227,
+   "end": 42.431
+  },
+  {
+   "i": 112,
+   "text": "found",
+   "beat": 5,
+   "start": 42.452,
+   "end": 42.655
+  },
+  {
+   "i": 113,
+   "text": "no",
+   "beat": 5,
+   "start": 42.676,
+   "end": 42.88
+  },
+  {
+   "i": 114,
+   "text": "evidence.",
+   "beat": 5,
+   "start": 42.901,
+   "end": 43.525
+  },
+  {
+   "i": 115,
+   "text": "Megaspeed",
+   "beat": 5,
+   "start": 43.77,
+   "end": 44.254
+  },
+  {
+   "i": 116,
+   "text": "says",
+   "beat": 5,
+   "start": 44.275,
+   "end": 44.478
+  },
+  {
+   "i": 117,
+   "text": "it",
+   "beat": 5,
+   "start": 44.499,
+   "end": 44.703
+  },
+  {
+   "i": 118,
+   "text": "obeys",
+   "beat": 5,
+   "start": 44.724,
+   "end": 45.067
+  },
+  {
+   "i": 119,
+   "text": "the",
+   "beat": 5,
+   "start": 45.088,
+   "end": 45.292
+  },
+  {
+   "i": 120,
+   "text": "law.",
+   "beat": 5,
+   "start": 45.313,
+   "end": 45.516
+  },
+  {
+   "i": 121,
+   "text": "October",
+   "beat": 6,
+   "start": 46.077,
+   "end": 46.561
+  },
+  {
+   "i": 122,
+   "text": "29th,",
+   "beat": 6,
+   "start": 46.582,
+   "end": 46.926
+  },
+  {
+   "i": 123,
+   "text": "2026.",
+   "beat": 6,
+   "start": 47.059,
+   "end": 47.683
+  },
+  {
+   "i": 124,
+   "text": "The",
+   "beat": 6,
+   "start": 47.928,
+   "end": 48.132
+  },
+  {
+   "i": 125,
+   "text": "Times",
+   "beat": 6,
+   "start": 48.153,
+   "end": 48.496
+  },
+  {
+   "i": 126,
+   "text": "reports",
+   "beat": 6,
+   "start": 48.517,
+   "end": 48.861
+  },
+  {
+   "i": 127,
+   "text": "that",
+   "beat": 6,
+   "start": 48.882,
+   "end": 49.085
+  },
+  {
+   "i": 128,
+   "text": "US",
+   "beat": 6,
+   "start": 49.106,
+   "end": 49.31
+  },
+  {
+   "i": 129,
+   "text": "intelligence",
+   "beat": 6,
+   "start": 49.331,
+   "end": 50.095
+  },
+  {
+   "i": 130,
+   "text": "had",
+   "beat": 6,
+   "start": 50.116,
+   "end": 50.32
+  },
+  {
+   "i": 131,
+   "text": "been",
+   "beat": 6,
+   "start": 50.341,
+   "end": 50.544
+  },
+  {
+   "i": 132,
+   "text": "watching",
+   "beat": 6,
+   "start": 50.565,
+   "end": 50.909
+  },
+  {
+   "i": 133,
+   "text": "Alice",
+   "beat": 6,
+   "start": 50.93,
+   "end": 51.413
+  },
+  {
+   "i": 134,
+   "text": "Huang",
+   "beat": 6,
+   "start": 51.435,
+   "end": 51.638
+  },
+  {
+   "i": 135,
+   "text": "as",
+   "beat": 6,
+   "start": 51.659,
+   "end": 51.862
+  },
+  {
+   "i": 136,
+   "text": "a",
+   "beat": 6,
+   "start": 51.883,
+   "end": 52.087
+  },
+  {
+   "i": 137,
+   "text": "suspected",
+   "beat": 6,
+   "start": 52.108,
+   "end": 52.592
+  },
+  {
+   "i": 138,
+   "text": "Chinese",
+   "beat": 6,
+   "start": 52.613,
+   "end": 53.096
+  },
+  {
+   "i": 139,
+   "text": "asset,",
+   "beat": 6,
+   "start": 53.117,
+   "end": 53.461
+  },
+  {
+   "i": 140,
+   "text": "and",
+   "beat": 6,
+   "start": 53.594,
+   "end": 53.798
+  },
+  {
+   "i": 141,
+   "text": "that",
+   "beat": 6,
+   "start": 53.819,
+   "end": 54.022
+  },
+  {
+   "i": 142,
+   "text": "she",
+   "beat": 6,
+   "start": 54.043,
+   "end": 54.246
+  },
+  {
+   "i": 143,
+   "text": "had",
+   "beat": 6,
+   "start": 54.267,
+   "end": 54.471
+  },
+  {
+   "i": 144,
+   "text": "grown",
+   "beat": 6,
+   "start": 54.492,
+   "end": 54.695
+  },
+  {
+   "i": 145,
+   "text": "close",
+   "beat": 6,
+   "start": 54.716,
+   "end": 55.06
+  },
+  {
+   "i": 146,
+   "text": "to",
+   "beat": 6,
+   "start": 55.081,
+   "end": 55.284
+  },
+  {
+   "i": 147,
+   "text": "Nvidia's",
+   "beat": 6,
+   "start": 55.305,
+   "end": 55.649
+  },
+  {
+   "i": 148,
+   "text": "chief,",
+   "beat": 6,
+   "start": 55.67,
+   "end": 55.873
+  },
+  {
+   "i": 149,
+   "text": "Jensen",
+   "beat": 6,
+   "start": 56.006,
+   "end": 56.35
+  },
+  {
+   "i": 150,
+   "text": "Huang.",
+   "beat": 6,
+   "start": 56.371,
+   "end": 56.574
+  },
+  {
+   "i": 151,
+   "text": "They",
+   "beat": 6,
+   "start": 56.82,
+   "end": 57.023
+  },
+  {
+   "i": 152,
+   "text": "are",
+   "beat": 6,
+   "start": 57.044,
+   "end": 57.388
+  },
+  {
+   "i": 153,
+   "text": "not",
+   "beat": 6,
+   "start": 57.409,
+   "end": 57.612
+  },
+  {
+   "i": 154,
+   "text": "related.",
+   "beat": 6,
+   "start": 57.633,
+   "end": 58.117
+  },
+  {
+   "i": 155,
+   "text": "November",
+   "beat": 7,
+   "start": 58.678,
+   "end": 59.162
+  },
+  {
+   "i": 156,
+   "text": "8th.",
+   "beat": 7,
+   "start": 59.183,
+   "end": 59.386
+  },
+  {
+   "i": 157,
+   "text": "Jensen",
+   "beat": 7,
+   "start": 59.632,
+   "end": 59.975
+  },
+  {
+   "i": 158,
+   "text": "Huang",
+   "beat": 7,
+   "start": 59.996,
+   "end": 60.2
+  },
+  {
+   "i": 159,
+   "text": "writes",
+   "beat": 7,
+   "start": 60.221,
+   "end": 60.564
+  },
+  {
+   "i": 160,
+   "text": "to",
+   "beat": 7,
+   "start": 60.585,
+   "end": 60.789
+  },
+  {
+   "i": 161,
+   "text": "staff,",
+   "beat": 7,
+   "start": 60.81,
+   "end": 61.013
+  },
+  {
+   "i": 162,
+   "text": "quote,",
+   "beat": 7,
+   "start": 61.146,
+   "end": 61.49
+  },
+  {
+   "i": 163,
+   "text": "I",
+   "beat": 7,
+   "start": 61.623,
+   "end": 61.827
+  },
+  {
+   "i": 164,
+   "text": "was",
+   "beat": 7,
+   "start": 61.848,
+   "end": 62.051
+  },
+  {
+   "i": 165,
+   "text": "unfaithful",
+   "beat": 7,
+   "start": 62.072,
+   "end": 62.556
+  },
+  {
+   "i": 166,
+   "text": "to",
+   "beat": 7,
+   "start": 62.577,
+   "end": 62.78
+  },
+  {
+   "i": 167,
+   "text": "my",
+   "beat": 7,
+   "start": 62.801,
+   "end": 63.005
+  },
+  {
+   "i": 168,
+   "text": "wife.",
+   "beat": 7,
+   "start": 63.026,
+   "end": 63.369
+  },
+  {
+   "i": 169,
+   "text": "He",
+   "beat": 7,
+   "start": 63.615,
+   "end": 63.818
+  },
+  {
+   "i": 170,
+   "text": "names",
+   "beat": 7,
+   "start": 63.839,
+   "end": 64.183
+  },
+  {
+   "i": 171,
+   "text": "no",
+   "beat": 7,
+   "start": 64.204,
+   "end": 64.407
+  },
+  {
+   "i": 172,
+   "text": "one.",
+   "beat": 7,
+   "start": 64.428,
+   "end": 64.772
+  },
+  {
+   "i": 173,
+   "text": "Nvidia's",
+   "beat": 7,
+   "start": 65.017,
+   "end": 65.361
+  },
+  {
+   "i": 174,
+   "text": "board",
+   "beat": 7,
+   "start": 65.382,
+   "end": 65.585
+  },
+  {
+   "i": 175,
+   "text": "opens",
+   "beat": 7,
+   "start": 65.606,
+   "end": 65.95
+  },
+  {
+   "i": 176,
+   "text": "an",
+   "beat": 7,
+   "start": 65.971,
+   "end": 66.174
+  },
+  {
+   "i": 177,
+   "text": "independent",
+   "beat": 7,
+   "start": 66.195,
+   "end": 66.819
+  },
+  {
+   "i": 178,
+   "text": "investigation,",
+   "beat": 7,
+   "start": 66.84,
+   "end": 67.605
+  },
+  {
+   "i": 179,
+   "text": "and",
+   "beat": 7,
+   "start": 67.738,
+   "end": 67.941
+  },
+  {
+   "i": 180,
+   "text": "says",
+   "beat": 7,
+   "start": 67.962,
+   "end": 68.166
+  },
+  {
+   "i": 181,
+   "text": "it",
+   "beat": 7,
+   "start": 68.187,
+   "end": 68.39
+  },
+  {
+   "i": 182,
+   "text": "has",
+   "beat": 7,
+   "start": 68.411,
+   "end": 68.614
+  },
+  {
+   "i": 183,
+   "text": "no",
+   "beat": 7,
+   "start": 68.635,
+   "end": 68.839
+  },
+  {
+   "i": 184,
+   "text": "reason",
+   "beat": 7,
+   "start": 68.86,
+   "end": 69.203
+  },
+  {
+   "i": 185,
+   "text": "to",
+   "beat": 7,
+   "start": 69.224,
+   "end": 69.428
+  },
+  {
+   "i": 186,
+   "text": "believe",
+   "beat": 7,
+   "start": 69.449,
+   "end": 69.933
+  },
+  {
+   "i": 187,
+   "text": "secrets",
+   "beat": 7,
+   "start": 69.954,
+   "end": 70.297
+  },
+  {
+   "i": 188,
+   "text": "were",
+   "beat": 7,
+   "start": 70.318,
+   "end": 70.662
+  },
+  {
+   "i": 189,
+   "text": "compromised.",
+   "beat": 7,
+   "start": 70.683,
+   "end": 71.307
+  },
+  {
+   "i": 190,
+   "text": "The",
+   "beat": 8,
+   "start": 71.868,
+   "end": 72.071
+  },
+  {
+   "i": 191,
+   "text": "next",
+   "beat": 8,
+   "start": 72.092,
+   "end": 72.296
+  },
+  {
+   "i": 192,
+   "text": "day,",
+   "beat": 8,
+   "start": 72.317,
+   "end": 72.52
+  },
+  {
+   "i": 193,
+   "text": "CBS",
+   "beat": 8,
+   "start": 72.653,
+   "end": 72.857
+  },
+  {
+   "i": 194,
+   "text": "and",
+   "beat": 8,
+   "start": 72.878,
+   "end": 73.081
+  },
+  {
+   "i": 195,
+   "text": "NBC",
+   "beat": 8,
+   "start": 73.102,
+   "end": 73.306
+  },
+  {
+   "i": 196,
+   "text": "report",
+   "beat": 8,
+   "start": 73.327,
+   "end": 73.67
+  },
+  {
+   "i": 197,
+   "text": "a",
+   "beat": 8,
+   "start": 73.691,
+   "end": 73.895
+  },
+  {
+   "i": 198,
+   "text": "Justice",
+   "beat": 8,
+   "start": 73.916,
+   "end": 74.399
+  },
+  {
+   "i": 199,
+   "text": "Department",
+   "beat": 8,
+   "start": 74.421,
+   "end": 74.904
+  },
+  {
+   "i": 200,
+   "text": "criminal",
+   "beat": 8,
+   "start": 74.925,
+   "end": 75.409
+  },
+  {
+   "i": 201,
+   "text": "investigation",
+   "beat": 8,
+   "start": 75.43,
+   "end": 76.195
+  },
+  {
+   "i": 202,
+   "text": "into",
+   "beat": 8,
+   "start": 76.216,
+   "end": 76.559
+  },
+  {
+   "i": 203,
+   "text": "Megaspeed.",
+   "beat": 8,
+   "start": 76.58,
+   "end": 77.064
+  },
+  {
+   "i": 204,
+   "text": "President",
+   "beat": 8,
+   "start": 77.31,
+   "end": 77.793
+  },
+  {
+   "i": 205,
+   "text": "Trump",
+   "beat": 8,
+   "start": 77.814,
+   "end": 78.018
+  },
+  {
+   "i": 206,
+   "text": "says",
+   "beat": 8,
+   "start": 78.039,
+   "end": 78.242
+  },
+  {
+   "i": 207,
+   "text": "the",
+   "beat": 8,
+   "start": 78.263,
+   "end": 78.467
+  },
+  {
+   "i": 208,
+   "text": "FBI",
+   "beat": 8,
+   "start": 78.488,
+   "end": 78.691
+  },
+  {
+   "i": 209,
+   "text": "is",
+   "beat": 8,
+   "start": 78.712,
+   "end": 78.915
+  },
+  {
+   "i": 210,
+   "text": "looking",
+   "beat": 8,
+   "start": 78.936,
+   "end": 79.28
+  },
+  {
+   "i": 211,
+   "text": "into",
+   "beat": 8,
+   "start": 79.301,
+   "end": 79.645
+  },
+  {
+   "i": 212,
+   "text": "it,",
+   "beat": 8,
+   "start": 79.666,
+   "end": 79.869
+  },
+  {
+   "i": 213,
+   "text": "and",
+   "beat": 8,
+   "start": 80.002,
+   "end": 80.206
+  },
+  {
+   "i": 214,
+   "text": "that",
+   "beat": 8,
+   "start": 80.227,
+   "end": 80.43
+  },
+  {
+   "i": 215,
+   "text": "Huang",
+   "beat": 8,
+   "start": 80.451,
+   "end": 80.654
+  },
+  {
+   "i": 216,
+   "text": "had,",
+   "beat": 8,
+   "start": 80.675,
+   "end": 80.879
+  },
+  {
+   "i": 217,
+   "text": "quote,",
+   "beat": 8,
+   "start": 81.012,
+   "end": 81.356
+  },
+  {
+   "i": 218,
+   "text": "absolutely",
+   "beat": 8,
+   "start": 81.489,
+   "end": 82.253
+  },
+  {
+   "i": 219,
+   "text": "no",
+   "beat": 8,
+   "start": 82.274,
+   "end": 82.478
+  },
+  {
+   "i": 220,
+   "text": "idea.",
+   "beat": 8,
+   "start": 82.499,
+   "end": 82.842
+  },
+  {
+   "i": 221,
+   "text": "Now",
+   "beat": 9,
+   "start": 83.403,
+   "end": 83.607
+  },
+  {
+   "i": 222,
+   "text": "the",
+   "beat": 9,
+   "start": 83.628,
+   "end": 83.831
+  },
+  {
+   "i": 223,
+   "text": "other",
+   "beat": 9,
+   "start": 83.852,
+   "end": 84.196
+  },
+  {
+   "i": 224,
+   "text": "side.",
+   "beat": 9,
+   "start": 84.217,
+   "end": 84.56
+  },
+  {
+   "i": 225,
+   "text": "China",
+   "beat": 9,
+   "start": 84.806,
+   "end": 85.149
+  },
+  {
+   "i": 226,
+   "text": "calls",
+   "beat": 9,
+   "start": 85.17,
+   "end": 85.374
+  },
+  {
+   "i": 227,
+   "text": "the",
+   "beat": 9,
+   "start": 85.395,
+   "end": 85.598
+  },
+  {
+   "i": 228,
+   "text": "spy",
+   "beat": 9,
+   "start": 85.619,
+   "end": 85.822
+  },
+  {
+   "i": 229,
+   "text": "claim",
+   "beat": 9,
+   "start": 85.843,
+   "end": 86.047
+  },
+  {
+   "i": 230,
+   "text": "a",
+   "beat": 9,
+   "start": 86.068,
+   "end": 86.271
+  },
+  {
+   "i": 231,
+   "text": "smear.",
+   "beat": 9,
+   "start": 86.292,
+   "end": 86.496
+  },
+  {
+   "i": 232,
+   "text": "Megaspeed",
+   "beat": 9,
+   "start": 86.741,
+   "end": 87.225
+  },
+  {
+   "i": 233,
+   "text": "denies",
+   "beat": 9,
+   "start": 87.246,
+   "end": 87.589
+  },
+  {
+   "i": 234,
+   "text": "wrongdoing.",
+   "beat": 9,
+   "start": 87.61,
+   "end": 87.954
+  },
+  {
+   "i": 235,
+   "text": "Alice",
+   "beat": 9,
+   "start": 88.2,
+   "end": 88.683
+  },
+  {
+   "i": 236,
+   "text": "Huang",
+   "beat": 9,
+   "start": 88.704,
+   "end": 88.908
+  },
+  {
+   "i": 237,
+   "text": "has",
+   "beat": 9,
+   "start": 88.929,
+   "end": 89.132
+  },
+  {
+   "i": 238,
+   "text": "made",
+   "beat": 9,
+   "start": 89.153,
+   "end": 89.497
+  },
+  {
+   "i": 239,
+   "text": "no",
+   "beat": 9,
+   "start": 89.518,
+   "end": 89.721
+  },
+  {
+   "i": 240,
+   "text": "public",
+   "beat": 9,
+   "start": 89.742,
+   "end": 90.086
+  },
+  {
+   "i": 241,
+   "text": "comment.",
+   "beat": 9,
+   "start": 90.107,
+   "end": 90.45
+  },
+  {
+   "i": 242,
+   "text": "And",
+   "beat": 9,
+   "start": 90.696,
+   "end": 90.899
+  },
+  {
+   "i": 243,
+   "text": "no",
+   "beat": 9,
+   "start": 90.92,
+   "end": 91.124
+  },
+  {
+   "i": 244,
+   "text": "one",
+   "beat": 9,
+   "start": 91.145,
+   "end": 91.488
+  },
+  {
+   "i": 245,
+   "text": "has",
+   "beat": 9,
+   "start": 91.509,
+   "end": 91.713
+  },
+  {
+   "i": 246,
+   "text": "been",
+   "beat": 9,
+   "start": 91.734,
+   "end": 91.937
+  },
+  {
+   "i": 247,
+   "text": "charged.",
+   "beat": 9,
+   "start": 91.958,
+   "end": 92.302
+  },
+  {
+   "i": 248,
+   "text": "Next",
+   "beat": 10,
+   "start": 95.397,
+   "end": 95.6
+  },
+  {
+   "i": 249,
+   "text": "pin:",
+   "beat": 10,
+   "start": 95.621,
+   "end": 95.825
+  },
+  {
+   "i": 250,
+   "text": "November",
+   "beat": 10,
+   "start": 96.07,
+   "end": 96.554
+  },
+  {
+   "i": 251,
+   "text": "18th.",
+   "beat": 10,
+   "start": 96.575,
+   "end": 96.918
+  },
+  {
+   "i": 252,
+   "text": "Lawmakers",
+   "beat": 10,
+   "start": 97.164,
+   "end": 97.648
+  },
+  {
+   "i": 253,
+   "text": "have",
+   "beat": 10,
+   "start": 97.669,
+   "end": 98.012
+  },
+  {
+   "i": 254,
+   "text": "asked",
+   "beat": 10,
+   "start": 98.033,
+   "end": 98.377
+  },
+  {
+   "i": 255,
+   "text": "Jensen",
+   "beat": 10,
+   "start": 98.398,
+   "end": 98.742
+  },
+  {
+   "i": 256,
+   "text": "Huang",
+   "beat": 10,
+   "start": 98.763,
+   "end": 98.966
+  },
+  {
+   "i": 257,
+   "text": "to",
+   "beat": 10,
+   "start": 98.987,
+   "end": 99.19
+  },
+  {
+   "i": 258,
+   "text": "brief",
+   "beat": 10,
+   "start": 99.211,
+   "end": 99.415
+  },
+  {
+   "i": 259,
+   "text": "them",
+   "beat": 10,
+   "start": 99.436,
+   "end": 99.639
+  },
+  {
+   "i": 260,
+   "text": "behind",
+   "beat": 10,
+   "start": 99.66,
+   "end": 100.004
+  },
+  {
+   "i": 261,
+   "text": "closed",
+   "beat": 10,
+   "start": 100.025,
+   "end": 100.368
+  },
+  {
+   "i": 262,
+   "text": "doors.",
+   "beat": 10,
+   "start": 100.39,
+   "end": 100.593
+  }
+ ]
+}
