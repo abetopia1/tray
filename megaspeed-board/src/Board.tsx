@@ -1,5 +1,7 @@
 import React from 'react';
-import {AbsoluteFill, Audio, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, getInputProps, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const FLAGS = getInputProps() as {noBlur?: boolean; noGrain?: boolean; noVignette?: boolean};
 import {cameraAt} from './camera';
 import {Captions} from './components/Captions';
 import {IndexCard, InkDefs, ManilaTag, Pin, Polaroid, RubberStamp, StickyNote, Strip, TAG_H, Tape} from './components/Paper';
@@ -280,27 +282,27 @@ export const Board: React.FC = () => {
       </div>
 
       {/* Lens: soft edges, warm falloff, grain */}
-      <AbsoluteFill
+      {FLAGS.noBlur ? null : <AbsoluteFill
         style={{
           backdropFilter: 'blur(3px)',
           WebkitMaskImage: 'radial-gradient(ellipse 78% 70% at 50% 46%, transparent 58%, black 100%)',
           maskImage: 'radial-gradient(ellipse 78% 70% at 50% 46%, transparent 58%, black 100%)',
         }}
-      />
+      />}
       <AbsoluteFill
         style={{
           background:
             'radial-gradient(ellipse 85% 75% at 50% 44%, rgba(255,214,150,0.08) 0%, rgba(0,0,0,0) 45%, rgba(10,6,2,0.5) 100%)',
         }}
       />
-      <AbsoluteFill
+      {FLAGS.noGrain ? null : <AbsoluteFill
         style={{
           backgroundImage: `url(${staticFile('grain.png')})`,
-          backgroundPosition: `${(frame * 137) % 512}px ${(frame * 89) % 512}px`,
+          backgroundPosition: `${(Math.floor(frame / 2) * 137) % 512}px ${(Math.floor(frame / 2) * 89) % 512}px`,
           mixBlendMode: 'overlay',
-          opacity: 0.16,
+          opacity: 0.07,
         }}
-      />
+      />}
 
       <Captions seconds={seconds} />
       {assets.audio ? <Audio src={staticFile(assets.audio)} /> : null}

@@ -6,7 +6,7 @@ import path from 'node:path';
 
 const [scale, ...times] = process.argv.slice(2);
 const browserExecutable = '/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell';
-const chromiumOptions = {gl: 'swangle'};
+const chromiumOptions = {};
 
 mkdirSync('out/stills', {recursive: true});
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
